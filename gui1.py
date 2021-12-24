@@ -20,20 +20,20 @@ class MyWindow(QMainWindow):
         self.addToolBar(fileToolBar)
         # fileToolBar = self.addToolBar("File")
         openActionForToolBar = QAction(
-            QIcon('accessible/assets/file.png'), "&Open", self)
+            QIcon('./assets/file.png'), "&Open", self)
         openActionForToolBar.triggered.connect(self.openFiles)
 
         fileToolBar.addAction(openActionForToolBar)
         saveActionForToolBar = QAction(
-            QIcon('accessible/assets/save-solid.svg'), "&Save", self)
+            QIcon('./assets/save-solid.svg'), "&Save", self)
         fileToolBar.addAction(saveActionForToolBar)
 
         viewToolBar = self.addToolBar("View")
         minusActionForToolBar = QAction(
-            QIcon('accessible/assets/minus.png'), "minus", self)
+            QIcon('./assets/minus.png'), "minus", self)
         viewToolBar.addAction(minusActionForToolBar)
         plusActionForToolBar = QAction(
-            QIcon('accessible/assets/plus.png'), "&plus", self)
+            QIcon('./assets/plus.png'), "&plus", self)
         viewToolBar.addAction(plusActionForToolBar)
 
     def menuBarFunction(self):
@@ -90,7 +90,8 @@ class MyWindow(QMainWindow):
         self.b1.move(100, 100)
 
     def openFiles(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open File', "")
+        fname = QFileDialog.getOpenFileName(
+            self, 'Open File', "D:\\pyqt\\accessible")
         self.label.setText(fname[0])
         self.label.adjustSize()
 
