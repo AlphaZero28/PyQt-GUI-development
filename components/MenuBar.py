@@ -10,6 +10,7 @@ class cMenuBar(QWidget):
         fileMenu = menuBar.addMenu('&File')
         open_action = QAction('Open', self)
         open_action.setShortcut('Ctrl+O')
+        open_action.setStatusTip('Open A File')
         open_action.triggered.connect(self.openFiles)
     
         save_action = QAction('Save', self)
