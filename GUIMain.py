@@ -9,7 +9,7 @@ from StatusBar import cStatusBar
 from ToolBar import cToolBar  # custom toolbar
 from MenuBar import cMenuBar  # custom menubar
 from MainView import cMainView
-
+from NavigationBar import cNavigationBar
 
 class GUIMainWindow(QMainWindow):
 
@@ -27,6 +27,7 @@ class GUIMainWindow(QMainWindow):
         # vbox_layout will contain the cMainView elements
         self.vbox_layout = QVBoxLayout()
         self.vbox_layout.setContentsMargins(0, 0, 0, 0)
+        self.vbox_layout.setSpacing(0)
 
         self.central_widget.setLayout(self.vbox_layout)
 
@@ -37,8 +38,10 @@ class GUIMainWindow(QMainWindow):
         # initializing main windows UI
         self.initUI()
 
+        self.navigation_bar = cNavigationBar(self,self.vbox_layout)
         # initializing STATUS BAR
         self.cstatus_bar = cStatusBar(self)
+
 
     def initUI(self):
         cMainView(self, self.vbox_layout)
