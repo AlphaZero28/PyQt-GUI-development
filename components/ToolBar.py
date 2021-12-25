@@ -1,9 +1,7 @@
-from PyQt5.QtWidgets import QAction, QFileDialog, QLabel, QWidget, QToolBar
+from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar
 from PyQt5 import QtCore
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QIcon, QImage
 import fitz
-import tkinter as tk
 
 
 class cToolBar(QWidget):
@@ -38,17 +36,31 @@ class cToolBar(QWidget):
         self.mainwindow.addToolBar(fileToolBar)
         self.mainwindow.addToolBar(viewToolBar)
 
+    def set_main_view(self, cmain_view):
+        self.cmain_view = cmain_view
+
     def openFiles(self):
         fname = QFileDialog.getOpenFileName(
             self, 'Open File', "")
+
         self.get_pages(fname[0])
         # self.mainwindow.change_label(fname[0])
-        self.mainwindow.change_label(fname[0])
 
     def get_pages(self, filename):
         doc = fitz.open(filename)
-        page_no = 5
-        page = doc.load_page(page_no)  # number of page
-        pix = page.get_pixmap()
-        output = "outfile"+str(page_no)+".png"
-        pix.save(output)
+        no_page = len(doc)
+        imgs = []
+
+        for i in range(no_page):
+            page = doc.load_page(i)
+            pix = page.get_pixmap()
+            fmt = QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
+            qtimg = QImage(pix.samples_ptr, pix.width, pix.height, fmt)
+            imgs.append(qtimg)
+
+        print(type(qtimg))
+        # print(imgs)
+        # output = "outfile.png"
+        # pix.save(output)
+        # self.cmain_view.show_page(qtimg)
+        self.cmain_view.set_scrollview(imgs)
