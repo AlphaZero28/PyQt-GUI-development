@@ -1,3 +1,8 @@
+from components.NavigationBar import cNavigationBar
+from components.MainView import cMainView
+from components.MenuBar import cMenuBar  # custom menubar
+from components.ToolBar import cToolBar  # custom toolbar
+from components.StatusBar import cStatusBar
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout
@@ -5,20 +10,21 @@ from PyQt5.QtGui import QIcon
 
 sys.path.append('./components')
 
-from StatusBar import cStatusBar
-from ToolBar import cToolBar  # custom toolbar
-from MenuBar import cMenuBar  # custom menubar
-from MainView import cMainView
-from NavigationBar import cNavigationBar
 
 class GUIMainWindow(QMainWindow):
 
     def __init__(self):
         super(GUIMainWindow, self).__init__()
+        self.showMaximized()
 
         self.setWindowTitle("Accessible PDF Reader")
         self.setWindowIcon(QIcon('./assets/pdf-reader.png'))
-        self.setGeometry(50, 50, 500, 300)
+
+        width = QtWidgets.QDesktopWidget().screenGeometry().width()
+        height = QtWidgets.QDesktopWidget().screenGeometry().height()
+        # width = 400
+        # height = 500
+        self.setGeometry(0, 0, width, height)
 
         # Createint a Central Widget to attach the vbox_layout
         self.central_widget = QtWidgets.QWidget()
@@ -38,13 +44,14 @@ class GUIMainWindow(QMainWindow):
         # initializing main windows UI
         self.initUI()
 
-        self.navigation_bar = cNavigationBar(self,self.vbox_layout)
+        self.navigation_bar = cNavigationBar(self, self.vbox_layout)
         # initializing STATUS BAR
         self.cstatus_bar = cStatusBar(self)
 
 
     def initUI(self):
-        cMainView(self, self.vbox_layout)
+        self.cmain_view = cMainView(self, self.vbox_layout)
+        self.ctool_bar.set_main_view(self.cmain_view)
 
     def change_label(self, txt):
         self.label.setText(txt)
