@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel
 from PyQt5 import QtWidgets, QtGui
 
@@ -6,6 +7,11 @@ class cMainView(QWidget):
         super(cMainView, self).__init__()
         self.vbox_layout = vbox_layout
         self.mainwindow = mainwindow
+
+        # LEFT and RIGHT SPACER
+        self.verticalSpacer = QtWidgets.QSpacerItem(
+            80, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+
         self.set_scrollview()
 
     def set_scrollview(self):
@@ -16,9 +22,7 @@ class cMainView(QWidget):
         # main SCROLL AREA
         self.scroll_area = QScrollArea()
 
-        # LEFT and RIGHT SPACER
-        verticalSpacer = QtWidgets.QSpacerItem(
-            80, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        
 
 
 
@@ -29,38 +33,7 @@ class cMainView(QWidget):
 
         # adding the PAGES as labels to form_layout
         for i in range(20):
-            container = QWidget()
-            # container.setGeometry(0,0,500,500)
-            container.setStyleSheet(
-                '''
-                background: white;
-                '''
-            )
-            container.setFixedWidth(QtWidgets.QDesktopWidget().screenGeometry().width()-3*80)
-            # container.setFixedWidth(self.scroll_area.size().width()-2*80)
-            container.setFixedHeight(100)
-            # container.adjustSize()
-                    # DROP SHADOW EFFECT
-            effect = QGraphicsDropShadowEffect()
-            effect.setBlurRadius(5);
-            effect.setXOffset(0)
-            effect.setYOffset(0)
-
-            container.setGraphicsEffect(effect)
-            label = QLabel(container)
-            
-            label.setText("first label")
-            # label.adjustSize()
-
-            hbox_temp = QHBoxLayout()
-
-            hbox_temp.addItem(verticalSpacer)
-            hbox_temp.addWidget(container)
-            hbox_temp.addItem(verticalSpacer)
-            hbox_temp.setContentsMargins(0,0,0,0)
-
-            tempQW = QWidget()
-            tempQW.setLayout(hbox_temp)
+            tempQW = self.create_page()
 
             form_layout.addRow(tempQW)
 
@@ -75,6 +48,43 @@ class cMainView(QWidget):
 
         # self.vbox_layout.addLayout(hbox)
         self.vbox_layout.addWidget(self.scroll_area,10)
+
+    def create_page(self):
+        container = QWidget()
+
+        container.setStyleSheet('background: white;')
+        page_width = QtWidgets.QDesktopWidget().screenGeometry().width()-3*80
+        page_height = 100
+        container.setFixedWidth(page_width)
+        # container.setFixedWidth(self.scroll_area.size().width()-2*80)
+        container.setFixedHeight(page_height)
+        # container.adjustSize()
+        # DROP SHADOW EFFECT
+        effect = QGraphicsDropShadowEffect()
+        effect.setBlurRadius(5);
+        effect.setXOffset(0)
+        effect.setYOffset(0)
+
+        container.setGraphicsEffect(effect)
+        label = QLabel(container)
+        label.setText("first label")
+        label.setStyleSheet('border: 3px solid gray')
+        label.setGeometry(QRect(0,0,page_width, page_height))
+        
+
+        # CREATING a HORIZONTAL LAYOUT to contain spacers and the container
+        hbox_temp = QHBoxLayout()
+        hbox_temp.setContentsMargins(0,0,0,0)
+        hbox_temp.addItem(self.verticalSpacer)
+        hbox_temp.addWidget(container)
+        hbox_temp.addItem(self.verticalSpacer)
+        
+
+        tempQW = QWidget()
+        tempQW.setLayout(hbox_temp)
+
+        return tempQW
+
 
     # def set_container(self):
     #     # creating a HORIZONTAL LAYOUT to add to the vertical layout
