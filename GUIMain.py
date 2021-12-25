@@ -2,13 +2,11 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout
 from PyQt5.QtGui import QIcon
-
+from components.StatusBar import cStatusBar
+from components.ToolBar import cToolBar  # custom toolbar
+from components.MenuBar import cMenuBar  # custom menubar
+from components.MainView import cMainView
 sys.path.append('./components')
-
-from StatusBar import cStatusBar
-from ToolBar import cToolBar  # custom toolbar
-from MenuBar import cMenuBar  # custom menubar
-from MainView import cMainView
 
 
 class GUIMainWindow(QMainWindow):
@@ -33,16 +31,16 @@ class GUIMainWindow(QMainWindow):
         # initializing MENUBAR and TOOLBAR
         self.cmenu_bar = cMenuBar(self)
         self.ctool_bar = cToolBar(self)
+        self.cMain_View = cMainView(self, self.vbox_layout)
 
         # initializing main windows UI
-        self.initUI()
+        # self.initUI()
 
         # initializing STATUS BAR
         self.cstatus_bar = cStatusBar(self)
 
-    def initUI(self):
-        cMainView(self, self.vbox_layout)
-
+    # def initUI(self):
+    #     cMainView(self, self.vbox_layout)
     def change_label(self, txt):
         self.label.setText(txt)
         self.label.adjustSize()

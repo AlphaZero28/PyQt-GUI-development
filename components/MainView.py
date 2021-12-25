@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel
 from PyQt5 import QtWidgets
 
+
 class cMainView(QWidget):
     def __init__(self, mainwindow, vbox_layout):
         super(cMainView, self).__init__()
@@ -16,8 +17,9 @@ class cMainView(QWidget):
         )
 
         self.label = QLabel(container)
+
         effect = QGraphicsDropShadowEffect()
-        effect.setBlurRadius(5);
+        effect.setBlurRadius(5)
         effect.setXOffset(0)
         effect.setYOffset(0)
         container.setGraphicsEffect(effect)
