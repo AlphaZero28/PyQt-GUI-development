@@ -3,7 +3,7 @@
 call git log -3 --oneline --reverse
 
 :: INPUTS
-set /p branch=Branch:
+set /p branch=Branch: 
 set /p message=Message: 
 
 :: ADD

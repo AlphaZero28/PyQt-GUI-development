@@ -2,6 +2,7 @@ from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtGui import QPixmap, QImage
+from fitz.fitz import Pixmap
 
 
 class cMainView(QWidget):
@@ -10,70 +11,52 @@ class cMainView(QWidget):
         self.vbox_layout = vbox_layout
         self.mainwindow = mainwindow
 
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+
+        self.groupBox = QGroupBox() # groupBox will contain the formLayout of the pages
+
+        self.scroll_area.setWidget(self.groupBox)
+
+        self.vbox_layout.addWidget(self.scroll_area, 10)
+
         # LEFT and RIGHT SPACER
         self.verticalSpacer = QtWidgets.QSpacerItem(
             80, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
 
         # self.set_scrollview()
 
+    # def set_single_view(self, img):
+    #     self.tempQW = self.create_page(img)
+    #     self.vbox_layout.addWidget(self.tempQW, 10)
+    #     print(self.tempQW.height())
+
     def set_scrollview(self, imgs):
-        # creating a HORIZONTAL LAYOUT to add to the vertical layout
-        # hbox = QHBoxLayout()
-        # hbox.setContentsMargins(0, 0, 0, 0)
-
-        # main SCROLL AREA
-        self.scroll_area = QScrollArea()
-
         # FORM LAYOUT will contain the labels
         form_layout = QFormLayout()
         form_layout.setContentsMargins(0, 0, 0, 0)
         form_layout.setVerticalSpacing(10)
 
         no_page = len(imgs)
-        print(imgs[0].width())
+
 
         # adding the PAGES as labels to form_layout
-        for i in range(1):
-            print('test')
-            page_width = imgs[i].width()
-            page_height = imgs[i].height()
-            print(page_height, page_width)
+        for i in range(no_page):
             tempQW = self.create_page(imgs[i])
-
-            # tempQW = self.img_show(imgs[i], page_height, page_width)
-            # tempQW = QWidget()
             form_layout.addRow(tempQW)
 
-        groupBox = QGroupBox()
-        groupBox.setLayout(form_layout)
+        self.groupBox.setLayout(form_layout)
+        print('scroll height:',self.scroll_area.height())
 
-        self.scroll_area.setWidget(groupBox)
-        self.scroll_area.setWidgetResizable(True)
-
-        # hbox.addWidget(self.scroll_area)
-
-        # self.vbox_layout.addLayout(hbox)
-        self.vbox_layout.addWidget(self.scroll_area, 10)
-
-    # def img_show(self, img, page_height, page_width):
-    #     # print(img, page_height, page_width)
-    #     container = QWidget()
-    #     container.setStyleSheet('background: white;')
-
-    #     self.label = QLabel()
-    #     txt = " lable loaded" + str(page_width) + str(page_width) + "dim"
-    #     self.label.setText(txt)
-
-    def create_page(self, qtimg):
+    def create_page(self, img):
         container = QWidget()
         container.setStyleSheet('background: white;')
         page_width = QtWidgets.QDesktopWidget().screenGeometry().width()-3*80
-        # self.page_height = 50
-        page_height = 100
+        page_height = self.scroll_area.height()
+        # page_height =  QtWidgets.QDesktopWidget().screenGeometry().height()
         container.setFixedWidth(page_width)
-        # container.setFixedWidth(self.scroll_area.size().width()-2*80)
         container.setFixedHeight(page_height)
-        # container.adjustSize()
+        
         # DROP SHADOW EFFECT
         effect = QGraphicsDropShadowEffect()
         effect.setBlurRadius(5)
@@ -83,13 +66,22 @@ class cMainView(QWidget):
         container.setGraphicsEffect(effect)
         label = QLabel(container)
         label.setText("first label")
-        label.setStyleSheet('border: 3px solid gray')
+        # label.setStyleSheet('border: 3px solid gray')
         label.setGeometry(QRect(0, 0, page_width, page_height))
 
         # adding pixmap
-        pixMap = QPixmap.fromImage(qtimg)
+        img = img.convert("RGB")
+        data = img.tobytes("raw","RGB")
+        qim = QImage(data, img.size[0], img.size[1], QImage.Format_RGB888)
+        # pixMap = QPixmap.fromImage(img)
+        pixMap = QPixmap(qim)
+        
+        # label.setPixmap(pixMap)
+        pixMap = pixMap.scaled(page_width,page_height,Qt.KeepAspectRatio)
+        container.setFixedWidth(pixMap.size().width())
         label.setPixmap(pixMap)
         # label.adjustSize()
+        # container.adjustSize()
 
         # CREATING a HORIZONTAL LAYOUT to contain spacers and the container
         hbox_temp = QHBoxLayout()

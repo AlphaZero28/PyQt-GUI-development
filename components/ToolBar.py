@@ -1,3 +1,4 @@
+from PIL import Image
 from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QImage
@@ -36,8 +37,11 @@ class cToolBar(QWidget):
         self.mainwindow.addToolBar(fileToolBar)
         self.mainwindow.addToolBar(viewToolBar)
 
+        
+
     def set_main_view(self, cmain_view):
         self.cmain_view = cmain_view
+        # self.get_pages('F:/My_Folder/__Projects__/InnovationGarage/Accessible-PDF-Reader/App/pyqt-pdfreader/Jhora Palok By Jibanananda Das (BDeBooks.Com).pdf')
 
     def openFiles(self):
         fname = QFileDialog.getOpenFileName(
@@ -47,20 +51,24 @@ class cToolBar(QWidget):
         # self.mainwindow.change_label(fname[0])
 
     def get_pages(self, filename):
+        # images = convert_from_path(filename)
+        # print(images[0])
         doc = fitz.open(filename)
         no_page = len(doc)
         imgs = []
-
+        zoom = 4   # zoom factor
+        mat = fitz.Matrix(zoom, zoom)
         for i in range(no_page):
             page = doc.load_page(i)
-            pix = page.get_pixmap()
-            fmt = QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
-            qtimg = QImage(pix.samples_ptr, pix.width, pix.height, fmt)
-            imgs.append(qtimg)
-
-        print(type(qtimg))
+            pix = page.get_pixmap(matrix = mat)
+            pix.set_dpi(2000,1000)
+            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            imgs.append(img)
+            
+        # return imgs 
         # print(imgs)
         # output = "outfile.png"
         # pix.save(output)
         # self.cmain_view.show_page(qtimg)
         self.cmain_view.set_scrollview(imgs)
+        # self.cmain_view.set_single_view(imgs[0])

@@ -15,10 +15,16 @@ class GUIMainWindow(QMainWindow):
 
     def __init__(self):
         super(GUIMainWindow, self).__init__()
+        self.showMaximized()
 
         self.setWindowTitle("Accessible PDF Reader")
         self.setWindowIcon(QIcon('./assets/pdf-reader.png'))
-        self.setGeometry(50, 50, 500, 300)
+
+        width = QtWidgets.QDesktopWidget().screenGeometry().width()
+        height = QtWidgets.QDesktopWidget().screenGeometry().height()
+        # width = 400
+        # height = 500
+        self.setGeometry(0, 0, width, height)
 
         # Createint a Central Widget to attach the vbox_layout
         self.central_widget = QtWidgets.QWidget()
@@ -41,6 +47,7 @@ class GUIMainWindow(QMainWindow):
         self.navigation_bar = cNavigationBar(self, self.vbox_layout)
         # initializing STATUS BAR
         self.cstatus_bar = cStatusBar(self)
+
 
     def initUI(self):
         self.cmain_view = cMainView(self, self.vbox_layout)

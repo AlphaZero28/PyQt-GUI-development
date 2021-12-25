@@ -8,6 +8,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
+            // "program": "components/pdf_test.py",
             "program": "run.py",
             "console": "integratedTerminal"
         }
