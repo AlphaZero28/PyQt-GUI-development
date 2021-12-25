@@ -6,7 +6,9 @@ class cStatusBar(QWidget):
         super(cStatusBar, self).__init__()
         self.statusBar = QStatusBar()
         mainwindow.setStatusBar(self.statusBar)
+
         self.show_msg('hello')
+        
         self.statusBar.setFont(QFont('SansSerif', 7))
         self.statusBar.setStyleSheet('''
             QStatusBar {
