@@ -45,13 +45,16 @@ class GUIMainWindow(QMainWindow):
         self.initUI()
 
         self.navigation_bar = cNavigationBar(self, self.vbox_layout)
+        self.navigation_bar.set_main_view(self.cmain_view)
+
         # initializing STATUS BAR
         self.cstatus_bar = cStatusBar(self)
 
-
     def initUI(self):
         self.cmain_view = cMainView(self, self.vbox_layout)
+        self.cmain_view.get_vbox_layout(self.vbox_layout)
         self.ctool_bar.set_main_view(self.cmain_view)
+        # self.navigation_bar.set_main_view(self.cmain_view)
 
     def change_label(self, txt):
         self.label.setText(txt)
