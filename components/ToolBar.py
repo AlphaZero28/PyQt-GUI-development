@@ -9,6 +9,7 @@ class cToolBar(QWidget):
     def __init__(self, mainwindow):
         super(cToolBar, self).__init__()
         self.mainwindow = mainwindow
+        self.zoom = 1
 
         # file toolbar
         fileToolBar = QToolBar("File", self)
@@ -27,9 +28,12 @@ class cToolBar(QWidget):
         viewToolBar = QToolBar("View", self)
 
         minusActionForToolBar = QAction(
-            QIcon('./assets/minus.png'), "minus", self)
+            QIcon('./assets/minus.png'), "&Zoom Out", self)
+        minusActionForToolBar.triggered.connect(self.zoom_out)
+
         plusActionForToolBar = QAction(
-            QIcon('./assets/plus.png'), "&plus", self)
+            QIcon('./assets/plus.png'), "&Zoom In", self)
+        plusActionForToolBar.triggered.connect(self.zoom_in)
 
         viewToolBar.addAction(minusActionForToolBar)
         viewToolBar.addAction(plusActionForToolBar)
@@ -37,11 +41,17 @@ class cToolBar(QWidget):
         self.mainwindow.addToolBar(fileToolBar)
         self.mainwindow.addToolBar(viewToolBar)
 
-        
-
     def set_main_view(self, cmain_view):
         self.cmain_view = cmain_view
         # self.get_pages('F:/My_Folder/__Projects__/InnovationGarage/Accessible-PDF-Reader/App/pyqt-pdfreader/Jhora Palok By Jibanananda Das (BDeBooks.Com).pdf')
+
+    def zoom_in(self):
+        self.zoom = self.zoom + 0.25
+        self.cmain_view.get_zoom(self.zoom)
+
+    def zoom_out(self):
+        self.zoom = self.zoom - 0.25
+        self.cmain_view.get_zoom(self.zoom)
 
     def openFiles(self):
         fname = QFileDialog.getOpenFileName(
@@ -60,15 +70,16 @@ class cToolBar(QWidget):
         mat = fitz.Matrix(zoom, zoom)
         for i in range(no_page):
             page = doc.load_page(i)
-            pix = page.get_pixmap(matrix = mat)
-            pix.set_dpi(2000,1000)
+            pix = page.get_pixmap(matrix=mat)
+            pix.set_dpi(5000, 7200)
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
             imgs.append(img)
-            
-        # return imgs 
+
+        # return imgs
         # print(imgs)
         # output = "outfile.png"
         # pix.save(output)
         # self.cmain_view.show_page(qtimg)
-        self.cmain_view.set_scrollview(imgs)
+        self.cmain_view.get_imgs(imgs)
+        # self.cmain_view.show_page(self.zoom, imgs)
         # self.cmain_view.set_single_view(imgs[0])
