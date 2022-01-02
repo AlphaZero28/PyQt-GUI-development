@@ -43,15 +43,15 @@ class cToolBar(QWidget):
 
     def set_main_view(self, cmain_view):
         self.cmain_view = cmain_view
-        # self.get_pages('F:/My_Folder/__Projects__/InnovationGarage/Accessible-PDF-Reader/App/pyqt-pdfreader/Jhora Palok By Jibanananda Das (BDeBooks.Com).pdf')
+        # self.get_pages('F:/My_Folder/__Projects__/InnovationGarage/Accessible-PDF-Reader/App/pyqt-pdfreader/Jhora Palok By Jibanananda Das (BDeBooks.Com)-pages-deleted.pdf')
 
     def zoom_in(self):
         self.zoom = self.zoom + 0.25
-        self.cmain_view.get_zoom(self.zoom)
+        self.cmain_view.set_zoom(self.zoom)
 
     def zoom_out(self):
         self.zoom = self.zoom - 0.25
-        self.cmain_view.get_zoom(self.zoom)
+        self.cmain_view.set_zoom(self.zoom)
 
     def openFiles(self):
         fname = QFileDialog.getOpenFileName(
@@ -80,6 +80,6 @@ class cToolBar(QWidget):
         # output = "outfile.png"
         # pix.save(output)
         # self.cmain_view.show_page(qtimg)
-        self.cmain_view.get_imgs(imgs)
+        self.cmain_view.set_imgs(imgs)
         # self.cmain_view.show_page(self.zoom, imgs)
         # self.cmain_view.set_single_view(imgs[0])

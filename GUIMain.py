@@ -52,7 +52,6 @@ class GUIMainWindow(QMainWindow):
 
     def initUI(self):
         self.cmain_view = cMainView(self, self.vbox_layout)
-        self.cmain_view.get_vbox_layout(self.vbox_layout)
         self.ctool_bar.set_main_view(self.cmain_view)
         # self.navigation_bar.set_main_view(self.cmain_view)
 
