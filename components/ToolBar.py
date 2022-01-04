@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QImage
 import fitz
+from components.ImageProcessing import imgProcess
 
 
 class cToolBar(QWidget):
@@ -57,29 +58,31 @@ class cToolBar(QWidget):
         fname = QFileDialog.getOpenFileName(
             self, 'Open File', "")
 
-        self.get_pages(fname[0])
+        # self.get_pages(fname[0])
+        imgs = imgProcess.get_pages(fname[0])
+        self.cmain_view.set_imgs(imgs)
         # self.mainwindow.change_label(fname[0])
 
-    def get_pages(self, filename):
-        # images = convert_from_path(filename)
-        # print(images[0])
-        doc = fitz.open(filename)
-        no_page = len(doc)
-        imgs = []
-        zoom = 4   # zoom factor
-        mat = fitz.Matrix(zoom, zoom)
-        for i in range(no_page):
-            page = doc.load_page(i)
-            pix = page.get_pixmap(matrix=mat)
-            pix.set_dpi(5000, 7200)
-            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-            imgs.append(img)
+    # def get_pages(self, filename):
+    #     # images = convert_from_path(filename)
+    #     # print(images[0])
+    #     doc = fitz.open(filename)
+    #     no_page = len(doc)
+    #     imgs = []
+    #     zoom = 4   # zoom factor
+    #     mat = fitz.Matrix(zoom, zoom)
+    #     for i in range(no_page):
+    #         page = doc.load_page(i)
+    #         pix = page.get_pixmap(matrix=mat)
+    #         pix.set_dpi(5000, 7200)
+    #         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+    #         imgs.append(img)
 
         # return imgs
         # print(imgs)
         # output = "outfile.png"
         # pix.save(output)
         # self.cmain_view.show_page(qtimg)
-        self.cmain_view.set_imgs(imgs)
+        # self.cmain_view.set_imgs(imgs)
         # self.cmain_view.show_page(self.zoom, imgs)
         # self.cmain_view.set_single_view(imgs[0])
