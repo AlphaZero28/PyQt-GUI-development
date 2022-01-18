@@ -9,11 +9,13 @@ import PIL.Image as Image
 import io
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 
 class cMainView(QWidget):
     def __init__(self, mainwindow, vbox_layout):
         super(cMainView, self).__init__()
+        self.imgProcess = imgProcess()
         self.vbox_layout = vbox_layout
         self.mainwindow = mainwindow
         self.scroll_area = QScrollArea()
@@ -130,35 +132,39 @@ class cMainView(QWidget):
         cvImage = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
         # convert to gray img
-        gray_img = imgProcess.bgr2gray(cvImage)
+        gray_img = self.imgProcess.bgr2gray(cvImage)
 
         # convert to invert image
-        inv_img = imgProcess.invertImage(gray_img)
+        inv_img = self.imgProcess.invertImage(gray_img)
 
         # convert to horizontal histogram
-        [hist_img, hist_data] = imgProcess.horizontal_hist(inv_img)
+        [hist_img, hist_data] = self.imgProcess.horizontal_hist(inv_img)
 
         # get horizontal rounding_rect
-        bounding_horizontal_rect = imgProcess.bounding_horizontal_rect(
+        bounding_horizontal_rect = self.imgProcess.bounding_horizontal_rect(
             hist_data)
 
         no_of_lines = len(bounding_horizontal_rect)
         # print(bounding_horizontal_rect)
 
-        # cropped img
-        lines = imgProcess.find_lines(bounding_horizontal_rect, inv_img)
+        #  get cropped imgs of line in each page
+        lines = self.imgProcess.find_lines(bounding_horizontal_rect, inv_img)
+
+        # for im in lines:
+        #     plt.imshow(im, cmap='gray')
+        #     plt.show()
 
         # vertical histogram applied on each line
         line_vert_hist_data = []
         for i in range(no_of_lines):
 
-            [vert_img, vert_data] = imgProcess.vertical_hist(lines[i])
+            [vert_img, vert_data] = self.imgProcess.vertical_hist(lines[i])
             line_vert_hist_data.append(vert_data)
 
         # find bounding_verting_rect
         bounding_vertical_rect = []
         for i in range(len(line_vert_hist_data)):
-            words_in_line = imgProcess.bounding_vertical_rect(
+            words_in_line = self.imgProcess.bounding_vertical_rect(
                 line_vert_hist_data[i])
             bounding_vertical_rect.append(words_in_line)
 
@@ -202,6 +208,17 @@ class cMainView(QWidget):
             hbox_temp.addItem(self.verticalSpacer)
 
         else:
+
+            # sliding window
+            slide_imgs = self.imgProcess.sliding_window(lines[1])
+
+            # print(type(slide_imgs))
+            # save sliding windows
+
+            for i, s_img in enumerate(slide_imgs):
+                dir_name = 'D:\pyqt\hist\slide-img\img' + str(i) + '.png'
+                cv2.imwrite(dir_name, s_img)
+
             for i, (r1, r2) in enumerate(bounding_horizontal_rect):
 
                 x1 = bounding_vertical_rect[i][0][0]

@@ -10,6 +10,7 @@ class cToolBar(QWidget):
     def __init__(self, mainwindow):
         super(cToolBar, self).__init__()
         self.mainwindow = mainwindow
+        self.imgProcess = imgProcess()
         self.zoom = 1
 
         # file toolbar
@@ -59,7 +60,7 @@ class cToolBar(QWidget):
             self, 'Open File', "")
 
         # self.get_pages(fname[0])
-        imgs = imgProcess.get_pages(fname[0])
+        imgs = self.imgProcess.get_pages(fname[0])
         self.cmain_view.set_imgs(imgs)
         # self.mainwindow.change_label(fname[0])
 

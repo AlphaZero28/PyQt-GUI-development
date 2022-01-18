@@ -3,11 +3,12 @@ import numpy as np
 import io
 import PIL.Image as Image
 import fitz
+from torchvision import transforms
 
 
 class imgProcess():
 
-    def pdf2img(filename):
+    def pdf2img(self, filename):
         '''' convert pdf pages into PNG image file'''
 
         doc = fitz.open(filename)
@@ -28,7 +29,7 @@ class imgProcess():
 
         return imgs
 
-    def get_pages(filename):
+    def get_pages(self, filename):
         # images = convert_from_path(filename)
         # print(images[0])
         doc = fitz.open(filename)
@@ -45,12 +46,12 @@ class imgProcess():
 
         return imgs
 
-    def bgr2gray(img):
+    def bgr2gray(self, img):
         ''' convert to gray image '''
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         return img
 
-    def invertImage(img):
+    def invertImage(self, img):
         ''' invert pixels if 255 is dominant'''
 
         if (img.sum(axis=1).sum()/img.size) > 50:
@@ -60,7 +61,7 @@ class imgProcess():
 
         return img
 
-    def horizontal_hist(img):
+    def horizontal_hist(self, img):
         ''' calculahorizontal histogram of the image '''
 
         projection = np.sum(img, 1) / 255
@@ -72,7 +73,7 @@ class imgProcess():
 
         return [result, projection]
 
-    def bounding_horizontal_rect(hist_data):
+    def bounding_horizontal_rect(self, hist_data):
         ''' returns the initial and final y axis point of each line'''
         bounding_horizontal_rect = []
         valp = 0
@@ -90,8 +91,7 @@ class imgProcess():
 
         return bounding_horizontal_rect
 
-    def find_lines(bounding_horizontal_rect, img):
-
+    def find_lines(self, bounding_horizontal_rect, img):
         cropped_images = []
         for i, (r1, r2) in enumerate(bounding_horizontal_rect):
             crop_img = img[r1:r2, 0:img.shape[1]]
@@ -99,7 +99,7 @@ class imgProcess():
 
         return cropped_images
 
-    def vertical_hist(img):
+    def vertical_hist(self, img):
         ''' meant to be used after horizontal histogram in each line'''
         projection = np.sum(img, 0) / 255
         result = np.zeros((img.shape[0], projection.shape[0]))
@@ -110,7 +110,7 @@ class imgProcess():
 
         return [result, projection]
 
-    def bounding_vertical_rect(vert_data):
+    def bounding_vertical_rect(self, vert_data):
         bounding_vertical_rect = []
         valp = 0
         pos1 = 0
@@ -126,3 +126,29 @@ class imgProcess():
             valp = val
 
         return bounding_vertical_rect
+
+    def sliding_img_resize(self, image):
+        ''' resize the sliding window img as per aspect ratio of the original img'''
+        col_num, row_num = 16, 28
+        aspect_ratio = col_num/row_num
+        image = transforms.ToPILImage()(image)
+        image = transforms.Resize((row_num, col_num))(image)
+        ret, image = cv2.threshold(
+            np.array(image), 150, 255, cv2.THRESH_BINARY)
+
+        return image
+
+    def sliding_window(self, lines):
+        slide_imgs = []
+        ran_interval = 6
+        aspect_ratio = 16/28
+        ran = np.arange(0, lines.shape[1], ran_interval)
+
+        for i in ran:
+            c1, c2 = i, i+int(aspect_ratio*lines.shape[0])
+            gap = lines[:, c1:c2]
+            gap = self.sliding_img_resize(gap)
+            slide_imgs.append(gap)
+            # print(type(slide_imgs))
+
+        return slide_imgs
