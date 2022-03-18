@@ -77,9 +77,8 @@ class imgProcess():
     def bounding_horizontal_rect(hist_data):
         ''' returns the initial and final y axis point of each line'''
         bounding_horizontal_rect = []
-        valp = 0
-        pos1 = 0
-        thresh_val = 0
+        valp, pos1, thresh_val = 0,0,0
+
 
         for i, val in enumerate(hist_data):
             if val > thresh_val and valp <= thresh_val:
@@ -91,6 +90,8 @@ class imgProcess():
             valp = val
 
         return bounding_horizontal_rect
+
+
 
     def find_lines(bounding_horizontal_rect, img):
         ''' Find lines that exist in the image'''
@@ -117,9 +118,7 @@ class imgProcess():
         ''' returns the initial and final x axis point of each word'''
         
         bounding_vertical_rect = []
-        valp = 0
-        pos1 = 0
-        thresh_val = 0
+        valp, pos1, thresh_val = 0,0,0
 
         for i, val in enumerate(vert_data):
             if val > thresh_val and valp <= thresh_val:
@@ -132,7 +131,7 @@ class imgProcess():
 
         return bounding_vertical_rect
 
-    def find_words(self, bounding_vertical_rect, img):
+    def find_words( bounding_vertical_rect, img):
         ''' Find words in the line image'''
         cropped_images = []
         for i, (r1, r2) in enumerate(bounding_vertical_rect):
