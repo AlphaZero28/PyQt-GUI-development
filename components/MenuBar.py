@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QAction, QFileDialog, QWidget
+import sys 
 
 class cMenuBar(QWidget):
     def __init__(self, mainwindow):
@@ -16,12 +17,14 @@ class cMenuBar(QWidget):
         save_action = QAction('Save', self)
         save_action.setShortcut('Ctrl+S')
 
+        
         exit_action = QAction('Exit', self)
         exit_action.setShortcut('Ctrl+Q')
-        # exit_action.triggered.connect(lambda: QApplication(sys.argv))
+        # exit_action.triggered.connect(lambda: sys.exit(app.exec_())))
 
         fileMenu.addAction(open_action)
         fileMenu.addAction(save_action)
+        fileMenu.addSeparator()
         fileMenu.addAction(exit_action)
 
 
