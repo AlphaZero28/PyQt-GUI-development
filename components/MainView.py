@@ -148,21 +148,23 @@ class cMainView(QWidget):
         # cropped img
         lines = imgProcess.find_lines(bounding_horizontal_rect, inv_img)
 
+
+
+
+
         # vertical histogram applied on each line
-        line_vert_hist_data = []
+        # line_vert_hist_data = []
+        bounding_vertical_rect = []
         for i in range(no_of_lines):
 
             [vert_img, vert_data] = imgProcess.vertical_hist(lines[i])
-            line_vert_hist_data.append(vert_data)
+            # line_vert_hist_data.append(vert_data)
 
         # find bounding_verting_rect
-        bounding_vertical_rect = []
-        for i in range(len(line_vert_hist_data)):
-            words_in_line = imgProcess.bounding_vertical_rect(
-                line_vert_hist_data[i])
+            words_in_line = imgProcess.bounding_horizontal_rect(vert_data)
             bounding_vertical_rect.append(words_in_line)
 
-        # print(word_data)
+
 
         # hist_img_rgb = cv2.cvtColor(hist_img, cv2.COLOR_GRAY2RGB)
 
@@ -203,12 +205,16 @@ class cMainView(QWidget):
 
         else:
             for i, (r1, r2) in enumerate(bounding_horizontal_rect):
+            # ocr applied on each line 
+                                
+                txt = imgProcess.pytesseract_apply(lines[i],flag=0)
+                # print(txt)
 
                 x1 = bounding_vertical_rect[i][0][0]
                 x2 = bounding_vertical_rect[i][-1][1]
                 line = QLabel(container)
                 line.setStyleSheet("background:rgba(0,255,0,100);")
-                line.setText("line" + str(i))
+                line.setText(txt)
                 # print(i)
                 line.move(x1*width_ratio, r1*height_ratio)
                 # line.adjustSize()
