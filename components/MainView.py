@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel
 from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QPixmap, QImage,QFont
 from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
 from components.ToolBar import cToolBar
 from components.ImageProcessing import imgProcess
@@ -9,7 +9,7 @@ import PIL.Image as Image
 import io
 import numpy as np
 import cv2
-
+import matplotlib.pyplot as plt
 
 class cMainView(QWidget):
     def __init__(self, mainwindow, vbox_layout):
@@ -149,20 +149,18 @@ class cMainView(QWidget):
         lines = imgProcess.find_lines(bounding_horizontal_rect, inv_img)
 
         # vertical histogram applied on each line
-        line_vert_hist_data = []
-        for i in range(no_of_lines):
+        # line_vert_hist_data = []
+        # bounding_vertical_rect = []
+        # for i in range(no_of_lines):
 
-            [vert_img, vert_data] = imgProcess.vertical_hist(lines[i])
-            line_vert_hist_data.append(vert_data)
+        #     [vert_img, vert_data] = imgProcess.vertical_hist(lines[i])
+        #     # line_vert_hist_data.append(vert_data)
 
-        # find bounding_verting_rect
-        bounding_vertical_rect = []
-        for i in range(len(line_vert_hist_data)):
-            words_in_line = imgProcess.bounding_vertical_rect(
-                line_vert_hist_data[i])
-            bounding_vertical_rect.append(words_in_line)
+        # # find bounding_verting_rect
+        #     words_in_line = imgProcess.bounding_vertical_rect(vert_data)
+        #     bounding_vertical_rect.append(words_in_line)
 
-        # print(word_data)
+
 
         # hist_img_rgb = cv2.cvtColor(hist_img, cv2.COLOR_GRAY2RGB)
 
@@ -196,25 +194,76 @@ class cMainView(QWidget):
         hbox_temp = QHBoxLayout()
         hbox_temp.setContentsMargins(0, 0, 0, 0)
 
-        if no_of_lines == 0:
+        if no_of_lines == 0:            
             hbox_temp.addItem(self.verticalSpacer)
             hbox_temp.addWidget(container)
             hbox_temp.addItem(self.verticalSpacer)
 
         else:
+            bounding_vertical_rect, line_str, final_text = [], [], []
+            
             for i, (r1, r2) in enumerate(bounding_horizontal_rect):
+
+                
+                # cv2.imshow('line',lines[i])
+                
+            # ocr applied on each line 
+
+
+                [vert_img, vert_data] = imgProcess.vertical_hist(lines[i])
+                # line_vert_hist_data.append(vert_data)
+
+            # find bounding_verting_rect
+                words_in_line = imgProcess.bounding_vertical_rect(vert_data)
+                bounding_vertical_rect.append(words_in_line)
+                # print(bounding_vertical_rect)
+                txt = imgProcess.pytesseract_apply(lines[i],flag=0, line=i)
+
+                # plt.axis('off')
+                # plt.imshow(lines[5],cmap='gray')
+                # print(lines[5].shape)
+                # cv2.imshow('line',lines[5])
+                # cv2.imwrite('line.png',lines[5])
+
+                # print(txt)
+                if len(txt) == 0 :
+                    txt = imgProcess.pytesseract_apply(lines[i],flag=1, line=i)
+                    # print(i+1)
+                    # words = imgProcess.find_words(words_in_line,
+                    #                             lines[i])
+                    # for word in words :
+                    #     # plt.axis('off')
+                    #     # plt.imshow(word, cmap='gray')
+                    #     # plt.figure(i+1)
+                    #     word_found = imgProcess.pytesseract_apply(lines[i],flag=1 )
+                        # txt += str(word_found + " ")
+
+
+                # save txt to txt file 
+                with open('sample.txt', 'a') as f:
+                    if not i==1: f.write('\n')
+                    f.write(txt)
+
+
+
+                line = QLabel(container)
+                line.setText(txt)
+                line.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
                 x1 = bounding_vertical_rect[i][0][0]
                 x2 = bounding_vertical_rect[i][-1][1]
-                line = QLabel(container)
-                line.setStyleSheet("background:rgba(0,255,0,100);")
-                line.setText("line" + str(i))
+                
+                # line.setStyleSheet("background:rgba(0,255,0,100);")
+                
+                line.setFont(QFont('Arial',12))
+                line.adjustSize()
                 # print(i)
                 line.move(x1*width_ratio, r1*height_ratio)
                 # line.adjustSize()
                 line.setFixedHeight((r2-r1+10)*height_ratio)
                 line.setFixedWidth((x2-x1+10)*width_ratio)
 
+            plt.show()
             hbox_temp.addItem(self.verticalSpacer)
             hbox_temp.addWidget(container)
 

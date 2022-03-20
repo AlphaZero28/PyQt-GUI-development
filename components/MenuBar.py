@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QAction, QFileDialog, QWidget
+from PyQt5.QtWidgets import QAction, QFileDialog, QWidget,QApplication,QLabel
+import sys 
+from components.ImageProcessing import imgProcess
 
 class cMenuBar(QWidget):
     def __init__(self, mainwindow):
@@ -16,12 +18,14 @@ class cMenuBar(QWidget):
         save_action = QAction('Save', self)
         save_action.setShortcut('Ctrl+S')
 
+        
         exit_action = QAction('Exit', self)
         exit_action.setShortcut('Ctrl+Q')
-        # exit_action.triggered.connect(lambda: QApplication(sys.argv))
+        # exit_action.triggered.connect(lambda: sys.exit(app.exec_())))
 
         fileMenu.addAction(open_action)
         fileMenu.addAction(save_action)
+        fileMenu.addSeparator()
         fileMenu.addAction(exit_action)
 
 
@@ -30,6 +34,15 @@ class cMenuBar(QWidget):
         editMenu = menuBar.addMenu('Edit')
         copy_action = QAction('Copy', self)
         copy_action.setShortcut('Ctrl+C')
+        line = QLabel()
+        copy_action.setStatusTip('Copy a text')
+        # copy_action.triggered.connect(self.copyContent(line))
+
+        def copyContent(line):
+            cb = QApplication.clipboard()
+            cb.clear(mode = cb.clipboard)
+            cb.setText(line.text(), mode = cb.clipboard)
+            
         
         paste_action = QAction('Paste', self)
         paste_action.setShortcut('Ctrl+V')
@@ -64,9 +77,11 @@ class cMenuBar(QWidget):
         helpMenu.addAction(about_action)
         helpMenu.addAction(userGuide_action)
 
-
+    def set_main_view(self, cmain_view):
+        self.cmain_view = cmain_view
 
     def openFiles(self):
         fname = QFileDialog.getOpenFileName(
-            self,'Open File', "")
-        self.mainwindow.change_label(fname[0])
+            self, 'Open File', "")
+        imgs = imgProcess.get_pages(fname[0])
+        self.cmain_view.set_imgs(imgs)

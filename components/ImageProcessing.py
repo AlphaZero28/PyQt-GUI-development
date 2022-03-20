@@ -3,7 +3,13 @@ import numpy as np
 import io
 import PIL.Image as Image
 import fitz
+import pytesseract
 
+import matplotlib.pyplot as plt
+import platform
+
+if platform.system().lower()=='windows':
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 class imgProcess():
 
@@ -29,6 +35,7 @@ class imgProcess():
         return imgs
 
     def get_pages(filename):
+        ''' returns the pages from the given pdf file'''
         # images = convert_from_path(filename)
         # print(images[0])
         doc = fitz.open(filename)
@@ -75,9 +82,8 @@ class imgProcess():
     def bounding_horizontal_rect(hist_data):
         ''' returns the initial and final y axis point of each line'''
         bounding_horizontal_rect = []
-        valp = 0
-        pos1 = 0
-        thresh_val = 0
+        valp, pos1, thresh_val = 0,0,0
+
 
         for i, val in enumerate(hist_data):
             if val > thresh_val and valp <= thresh_val:
@@ -90,7 +96,10 @@ class imgProcess():
 
         return bounding_horizontal_rect
 
+
+
     def find_lines(bounding_horizontal_rect, img):
+        ''' Find lines that exist in the image'''
 
         cropped_images = []
         for i, (r1, r2) in enumerate(bounding_horizontal_rect):
@@ -111,10 +120,10 @@ class imgProcess():
         return [result, projection]
 
     def bounding_vertical_rect(vert_data):
+        ''' returns the initial and final x axis point of each word'''
+        
         bounding_vertical_rect = []
-        valp = 0
-        pos1 = 0
-        thresh_val = 0
+        valp, pos1, thresh_val = 0,0,0
 
         for i, val in enumerate(vert_data):
             if val > thresh_val and valp <= thresh_val:
@@ -126,3 +135,35 @@ class imgProcess():
             valp = val
 
         return bounding_vertical_rect
+
+    def find_words( bounding_vertical_rect, img):
+        ''' Find words in the line image'''
+        cropped_images = []
+        for i, (r1, r2) in enumerate(bounding_vertical_rect):
+            crop_img = img[0:img.shape[1], r1:r2]
+            cropped_images.append(crop_img)
+
+        return cropped_images
+
+    def pytesseract_apply( img, flag, line = 0):
+        ''' Text detection in the image. 
+        flag = 0 when image conatains line text. 
+        flag = 1 when image containes word text '''
+
+
+        if flag == 0:
+            set_config = '--psm 7'
+        elif flag == 1:
+            set_config = '--psm 3'
+        # im = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        im2 = np.pad(img, ((10, 10), (100, 100)), 'constant',
+                     constant_values=(0, 0))
+
+        if line == 5:
+            plt.imshow(im2, cmap='gray')
+            plt.show()
+            plt.axis('off')
+
+        text = pytesseract.image_to_string(
+            im2, lang='ben', config=set_config)
+        return text
