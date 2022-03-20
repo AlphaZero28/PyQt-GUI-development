@@ -4,6 +4,8 @@ import io
 import PIL.Image as Image
 import fitz
 import pytesseract
+
+import matplotlib.pyplot as plt
 import platform
 
 if platform.system().lower()=='windows':
@@ -143,18 +145,24 @@ class imgProcess():
 
         return cropped_images
 
-    def pytesseract_apply( img, flag):
+    def pytesseract_apply( img, flag, line = 0):
         ''' Text detection in the image. 
         flag = 0 when image conatains line text. 
         flag = 1 when image containes word text '''
+
 
         if flag == 0:
             set_config = '--psm 7'
         elif flag == 1:
             set_config = '--psm 3'
         # im = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        im2 = np.pad(img, ((400, 400), (300, 300)), 'constant',
+        im2 = np.pad(img, ((10, 10), (100, 100)), 'constant',
                      constant_values=(0, 0))
+
+        if line == 5:
+            plt.imshow(im2, cmap='gray')
+            plt.show()
+            plt.axis('off')
 
         text = pytesseract.image_to_string(
             im2, lang='ben', config=set_config)

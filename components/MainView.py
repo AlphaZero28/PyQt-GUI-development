@@ -11,7 +11,6 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-
 class cMainView(QWidget):
     def __init__(self, mainwindow, vbox_layout):
         super(cMainView, self).__init__()
@@ -218,19 +217,26 @@ class cMainView(QWidget):
                 words_in_line = imgProcess.bounding_vertical_rect(vert_data)
                 bounding_vertical_rect.append(words_in_line)
                 # print(bounding_vertical_rect)
-                txt = imgProcess.pytesseract_apply(lines[i],flag=0)
+                txt = imgProcess.pytesseract_apply(lines[i],flag=0, line=i)
+
+                # plt.axis('off')
+                # plt.imshow(lines[5],cmap='gray')
+                # print(lines[5].shape)
+                # cv2.imshow('line',lines[5])
+                # cv2.imwrite('line.png',lines[5])
 
                 # print(txt)
                 if len(txt) == 0 :
-                    print(i+1)
-                    words = imgProcess.find_words(words_in_line,
-                                                lines[i])
-                    for word in words :
-                        plt.axis('off')
-                        plt.imshow(word, cmap='gray')
-                        plt.figure(i+1)
-                        word_found = imgProcess.pytesseract_apply(lines[i],flag=1)
-                        txt += str(word_found + " ")
+                    txt = imgProcess.pytesseract_apply(lines[i],flag=1, line=i)
+                    # print(i+1)
+                    # words = imgProcess.find_words(words_in_line,
+                    #                             lines[i])
+                    # for word in words :
+                    #     # plt.axis('off')
+                    #     # plt.imshow(word, cmap='gray')
+                    #     # plt.figure(i+1)
+                    #     word_found = imgProcess.pytesseract_apply(lines[i],flag=1 )
+                        # txt += str(word_found + " ")
 
 
                 # save txt to txt file 
