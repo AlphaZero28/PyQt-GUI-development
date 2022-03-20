@@ -60,7 +60,7 @@ class cToolBar(QWidget):
 
         # self.get_pages(fname[0])
         imgs = imgProcess.get_pages(fname[0])
-        self.cmain_view.set_imgs(imgs)
+        self.cmain_eview.set_imgs(imgs)
         # self.mainwindow.change_label(fname[0])
 
     # def get_pages(self, filename):

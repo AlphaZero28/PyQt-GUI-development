@@ -9,6 +9,7 @@ import PIL.Image as Image
 import io
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 
 class cMainView(QWidget):
@@ -203,6 +204,10 @@ class cMainView(QWidget):
             bounding_vertical_rect, line_str, final_text = [], [], []
             
             for i, (r1, r2) in enumerate(bounding_horizontal_rect):
+
+                
+                # cv2.imshow('line',lines[i])
+                
             # ocr applied on each line 
 
 
@@ -212,19 +217,33 @@ class cMainView(QWidget):
             # find bounding_verting_rect
                 words_in_line = imgProcess.bounding_vertical_rect(vert_data)
                 bounding_vertical_rect.append(words_in_line)
-                # print(words_in_line)
+                # print(bounding_vertical_rect)
                 txt = imgProcess.pytesseract_apply(lines[i],flag=0)
 
                 # print(txt)
                 if len(txt) == 0 :
+                    print(i+1)
                     words = imgProcess.find_words(words_in_line,
                                                 lines[i])
                     for word in words :
+                        plt.axis('off')
+                        plt.imshow(word, cmap='gray')
+                        plt.figure(i+1)
                         word_found = imgProcess.pytesseract_apply(lines[i],flag=1)
                         txt += str(word_found + " ")
-                    
+
+
+                # save txt to txt file 
+                with open('sample.txt', 'a') as f:
+                    if not i==1: f.write('\n')
+                    f.write(txt)
+
+
+
                 line = QLabel(container)
                 line.setText(txt)
+                line.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
                 x1 = bounding_vertical_rect[i][0][0]
                 x2 = bounding_vertical_rect[i][-1][1]
                 
@@ -238,6 +257,7 @@ class cMainView(QWidget):
                 line.setFixedHeight((r2-r1+10)*height_ratio)
                 line.setFixedWidth((x2-x1+10)*width_ratio)
 
+            plt.show()
             hbox_temp.addItem(self.verticalSpacer)
             hbox_temp.addWidget(container)
 
