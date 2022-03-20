@@ -53,6 +53,7 @@ class GUIMainWindow(QMainWindow):
     def initUI(self):
         self.cmain_view = cMainView(self, self.vbox_layout)
         self.ctool_bar.set_main_view(self.cmain_view)
+        self.cmenu_bar.set_main_view(self.cmain_view)
         # self.navigation_bar.set_main_view(self.cmain_view)
 
     def change_label(self, txt):
