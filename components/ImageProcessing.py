@@ -63,7 +63,7 @@ class imgProcess():
         if (img.sum(axis=1).sum()/img.size) > 50:
             # img = 255- img
             ret, img = cv2.threshold(
-                img, 0, 255, cv2.THRESH_BINARY_INV)
+                img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
         return img
 
@@ -159,10 +159,10 @@ class imgProcess():
         im2 = np.pad(img, ((10, 10), (100, 100)), 'constant',
                      constant_values=(0, 0))
 
-        if line == 5:
-            plt.imshow(im2, cmap='gray')
-            plt.show()
-            plt.axis('off')
+        # if line == 5:
+        #     plt.imshow(im2, cmap='gray')
+        #     plt.show()
+        #     plt.axis('off')
 
         text = pytesseract.image_to_string(
             im2, lang='ben', config=set_config)

@@ -54,6 +54,10 @@ class cMainView(QWidget):
     def goto_page(self, page_num):
         self.show_single_page(self.imgs[page_num])
 
+    # def save_file(self):
+    #     [tempQW, page_text] = self.create_page(self.imgs[0])
+    #     print(page_text)
+
     def show_single_page(self, img):
         self.run_count = self.run_count+1
 
@@ -68,7 +72,7 @@ class cMainView(QWidget):
 
         no_page = len(self.imgs)
 
-        tempQW = self.create_page(img)
+        [tempQW, pg_text] = self.create_page(img)
         form_layout.addRow(tempQW)
         groupBox.setLayout(form_layout)
 
@@ -78,9 +82,7 @@ class cMainView(QWidget):
         self.scroll_area = scroll_area
 
     def show_page(self, imgs):
-
         self.run_count = self.run_count+1
-
         self.groupBox.layout().removeItem(self.form_layout)
 
         # FORM LAYOUT will contain the labels
@@ -129,14 +131,21 @@ class cMainView(QWidget):
         # convert to cv2 img
         cvImage = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
+
+
         # convert to gray img
         gray_img = imgProcess.bgr2gray(cvImage)
 
+        # plt.imshow(gray_img, cmap='gray')
+
         # convert to invert image
         inv_img = imgProcess.invertImage(gray_img)
+        # plt.imshow(inv_img)
 
         # convert to horizontal histogram
         [hist_img, hist_data] = imgProcess.horizontal_hist(inv_img)
+
+        # plt.imshow(hist_img)
 
         # get horizontal rounding_rect
         bounding_horizontal_rect = imgProcess.bounding_horizontal_rect(
@@ -147,6 +156,14 @@ class cMainView(QWidget):
 
         # cropped img
         lines = imgProcess.find_lines(bounding_horizontal_rect, inv_img)
+
+        # plt.imshow(lines[0],cmap='gray')
+        # plt.imshow(lines[1],cmap='gray')
+        # plt.show()
+        cv2.imwrite('line-1.png', lines[0])
+        cv2.imwrite('line-2.png', lines[1])
+        # print(len(lines))
+
 
         # vertical histogram applied on each line
         # line_vert_hist_data = []
@@ -159,7 +176,6 @@ class cMainView(QWidget):
         # # find bounding_verting_rect
         #     words_in_line = imgProcess.bounding_vertical_rect(vert_data)
         #     bounding_vertical_rect.append(words_in_line)
-
 
 
         # hist_img_rgb = cv2.cvtColor(hist_img, cv2.COLOR_GRAY2RGB)
@@ -193,6 +209,7 @@ class cMainView(QWidget):
         # CREATING a HORIZONTAL LAYOUT to contain spacers and the container
         hbox_temp = QHBoxLayout()
         hbox_temp.setContentsMargins(0, 0, 0, 0)
+        page_text = []
 
         if no_of_lines == 0:            
             hbox_temp.addItem(self.verticalSpacer)
@@ -200,15 +217,11 @@ class cMainView(QWidget):
             hbox_temp.addItem(self.verticalSpacer)
 
         else:
-            bounding_vertical_rect, line_str, final_text = [], [], []
+            bounding_vertical_rect = []
             
-            for i, (r1, r2) in enumerate(bounding_horizontal_rect):
-
-                
-                # cv2.imshow('line',lines[i])
-                
+            
+            for i, (r1, r2) in enumerate(bounding_horizontal_rect):                
             # ocr applied on each line 
-
 
                 [vert_img, vert_data] = imgProcess.vertical_hist(lines[i])
                 # line_vert_hist_data.append(vert_data)
@@ -218,12 +231,6 @@ class cMainView(QWidget):
                 bounding_vertical_rect.append(words_in_line)
                 # print(bounding_vertical_rect)
                 txt = imgProcess.pytesseract_apply(lines[i],flag=0, line=i)
-
-                # plt.axis('off')
-                # plt.imshow(lines[5],cmap='gray')
-                # print(lines[5].shape)
-                # cv2.imshow('line',lines[5])
-                # cv2.imwrite('line.png',lines[5])
 
                 # print(txt)
                 if len(txt) == 0 :
@@ -240,9 +247,10 @@ class cMainView(QWidget):
 
 
                 # save txt to txt file 
-                with open('sample.txt', 'a') as f:
-                    if not i==1: f.write('\n')
-                    f.write(txt)
+                # with open('sample.txt', 'a') as f:
+                #     if not i==1: f.write('\n')
+                #     f.write(txt)
+                page_text.append(txt)
 
 
 
@@ -260,8 +268,9 @@ class cMainView(QWidget):
                 # print(i)
                 line.move(x1*width_ratio, r1*height_ratio)
                 # line.adjustSize()
-                line.setFixedHeight((r2-r1+10)*height_ratio)
-                line.setFixedWidth((x2-x1+10)*width_ratio)
+                line.setFixedHeight((r2-r1+12)*height_ratio)
+                line.setFixedWidth((x2-x1+150)*width_ratio)
+                # width = QtWidgets.QDesktopWidget().screenGeometry().width()
 
             plt.show()
             hbox_temp.addItem(self.verticalSpacer)
@@ -273,4 +282,4 @@ class cMainView(QWidget):
 
         tempQW.setLayout(hbox_temp)
 
-        return tempQW
+        return [tempQW, page_text]

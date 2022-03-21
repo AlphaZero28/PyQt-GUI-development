@@ -3,7 +3,10 @@ from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QImage
 import fitz
+from matplotlib import style
 from components.ImageProcessing import imgProcess
+from docx import Document
+from docx.shared import Pt 
 
 
 class cToolBar(QWidget):
@@ -19,8 +22,11 @@ class cToolBar(QWidget):
         openActionForToolBar = QAction(
             QIcon('./assets/file.png'), "&Open", self)
         openActionForToolBar.triggered.connect(self.openFiles)
+
         saveActionForToolBar = QAction(
             QIcon('./assets/save-solid.svg'), "&Save", self)
+        saveActionForToolBar.triggered.connect(self.saveFiles)
+        
 
         fileToolBar.addAction(openActionForToolBar)
         fileToolBar.addAction(saveActionForToolBar)
@@ -59,30 +65,44 @@ class cToolBar(QWidget):
             self, 'Open File', "")
 
         # self.get_pages(fname[0])
-        imgs = imgProcess.get_pages(fname[0])
-        self.cmain_view.set_imgs(imgs)
+        self.imgs = imgProcess.get_pages(fname[0])
+        self.cmain_view.set_imgs(self.imgs)
         # self.mainwindow.change_label(fname[0])
 
-    # def get_pages(self, filename):
-    #     # images = convert_from_path(filename)
-    #     # print(images[0])
-    #     doc = fitz.open(filename)
-    #     no_page = len(doc)
-    #     imgs = []
-    #     zoom = 4   # zoom factor
-    #     mat = fitz.Matrix(zoom, zoom)
-    #     for i in range(no_page):
-    #         page = doc.load_page(i)
-    #         pix = page.get_pixmap(matrix=mat)
-    #         pix.set_dpi(5000, 7200)
-    #         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-    #         imgs.append(img)
 
-        # return imgs
-        # print(imgs)
-        # output = "outfile.png"
-        # pix.save(output)
-        # self.cmain_view.show_page(qtimg)
-        # self.cmain_view.set_imgs(imgs)
-        # self.cmain_view.show_page(self.zoom, imgs)
-        # self.cmain_view.set_single_view(imgs[0])
+    def saveFiles(self):
+        no_of_pages = len(self.imgs)
+
+        # file = str(QFileDialog.get)
+        file = QFileDialog.getSaveFileName(self)
+        filename = file[0]
+
+        print(type(file))
+
+        # pages = []
+        document = Document()
+        style = document.styles['Normal']
+        font = style.font
+        font.name  = 'Arial'
+        font.size = Pt(12)
+
+        for i in range(no_of_pages):
+            [tempQW, page] = self.cmain_view.create_page(self.imgs[i]) 
+            paragraph = document.add_paragraph(' ')
+            paragraph.style = document.styles['Normal']
+            for line in page:
+                paragraph.add_run(line)
+                paragraph.add_run('\n')
+            
+            document.add_page_break()
+        document.save(filename)
+
+
+        # with open('sample.txt', 'a') as f:
+        #     for line in txt:
+        #         f.write('\n')
+        #         f.write(line)
+
+
+
+
