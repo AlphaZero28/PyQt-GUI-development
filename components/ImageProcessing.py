@@ -152,7 +152,7 @@ class imgProcess():
         ''' Text detection in the image. 
         flag = 0 when image conatains line text. 
         flag = 1 when image containes word text '''
-        global num
+        # global num
 
         if flag == 0:
             set_config = '--psm 7'
@@ -162,15 +162,15 @@ class imgProcess():
 
         img = np.pad(img, ((10, 10), (100, 100)), 'constant',
                      constant_values=(0, 0))
-        imgname = 'images/img' + str(num)+'.png'
-        num += 1 
+        # imgname = 'images/img' + str(num)+'.png'
+        # num += 1 
 
         # if (img.sum(axis=1).sum()/img.size) > 50:
             # img = 255- img
         ret, img = cv2.threshold(
             img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-        cv2.imwrite(imgname, img)
+        # cv2.imwrite(imgname, img)
 
         # if line == 5:
         #     plt.imshow(im2, cmap='gray')
