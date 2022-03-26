@@ -228,9 +228,18 @@ class cMainView(QWidget):
 
             # find bounding_verting_rect
                 words_in_line = imgProcess.bounding_vertical_rect(vert_data)
+
+                initial = words_in_line[0][0]
+                final = words_in_line[-1][1]
+
+                image = lines[i][:,initial:final]
+
+                # print(initial, final)
+                # print(words_in_line)
+                
                 bounding_vertical_rect.append(words_in_line)
                 # print(bounding_vertical_rect)
-                txt = imgProcess.pytesseract_apply(lines[i],flag=0, line=i)
+                txt = imgProcess.pytesseract_apply(image,flag=0, line=i)
 
                 # print(txt)
                 if len(txt) == 0 :
