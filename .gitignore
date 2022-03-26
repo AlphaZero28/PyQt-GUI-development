@@ -11,3 +11,5 @@ README.md
 /build
 /install/tesseract-ocr-w64-setup-v5.0.1.20220118.exe
 /istall/ben.traineddata
+ssh-key
+ssh-key.pub
