@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QImage
 import fitz
-from matplotlib import style
+# from matplotlib import style
 from components.ImageProcessing import imgProcess
 from docx import Document
 from docx.shared import Pt 
