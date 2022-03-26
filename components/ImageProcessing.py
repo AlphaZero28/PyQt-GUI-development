@@ -5,7 +5,7 @@ import PIL.Image as Image
 import fitz
 import pytesseract
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import platform
 
 if platform.system().lower()=='windows':

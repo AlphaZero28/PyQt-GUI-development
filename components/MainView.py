@@ -9,7 +9,7 @@ import PIL.Image as Image
 import io
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 class cMainView(QWidget):
     def __init__(self, mainwindow, vbox_layout):
@@ -272,7 +272,7 @@ class cMainView(QWidget):
                 line.setFixedWidth((x2-x1+150)*width_ratio)
                 # width = QtWidgets.QDesktopWidget().screenGeometry().width()
 
-            plt.show()
+            # plt.show()
             hbox_temp.addItem(self.verticalSpacer)
             hbox_temp.addWidget(container)
 

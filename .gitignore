@@ -7,3 +7,5 @@ ssh-key.pub
 ssh-access.sh
 push.bat
 README.md
+/dist
+/build
