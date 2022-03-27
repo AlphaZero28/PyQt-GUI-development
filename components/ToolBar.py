@@ -1,6 +1,6 @@
 from PIL import Image
-from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar
-from PyQt5 import QtCore
+from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar,QSpinBox, QLabel
+from PyQt5 import QtCore,Qt
 from PyQt5.QtGui import QIcon, QImage
 import fitz
 # from matplotlib import style
@@ -47,8 +47,32 @@ class cToolBar(QWidget):
         viewToolBar.addAction(minusActionForToolBar)
         viewToolBar.addAction(plusActionForToolBar)
 
+
+
+        # navigation toolbar
+        # add label for navigation
+        label = QLabel()
+        label.setText('GoTo')
+
+        # add spinbox for navigation
+        self.navigationBox = QSpinBox()
+        # navigationBox.setFocusPolicy(Qt.NoFocus)
+        self.navigationBox.valueChanged.connect(self.navigationFunction)
+
+        navigationBar = QToolBar("Navigation", self)
+        navigationBar.addWidget(label)
+        navigationBar.addWidget(self.navigationBox)
+        
+
+        # add toolbar to mainwindow
         self.mainwindow.addToolBar(fileToolBar)
         self.mainwindow.addToolBar(viewToolBar)
+        self.mainwindow.addToolBar(navigationBar)
+        
+
+    def navigationFunction(self):
+        page_number = self.navigationBox.value()
+        self.cmain_view.goto_specific_page(page_number)
 
     def set_main_view(self, cmain_view):
         self.cmain_view = cmain_view
@@ -64,7 +88,7 @@ class cToolBar(QWidget):
 
     def openFiles(self):
         if debug:
-            name = r'book.pdf'
+            name = r'math-book-9-10-9-12.pdf'
             imgs = imgProcess.get_pages(name)
             self.cmain_view.set_imgs(imgs)
             return

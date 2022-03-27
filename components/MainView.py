@@ -46,6 +46,11 @@ class cMainView(QWidget):
         self.page_num = 0
         self.goto_page(self.page_num)
 
+    def goto_specific_page(self, page_number):
+        # print(page_num)
+        if page_number < len(self.imgs):
+            self.goto_page(page_number)
+
     def goto_next_page(self):
         if not self.page_num == len(self.imgs)-1:
             self.page_num = self.page_num+1

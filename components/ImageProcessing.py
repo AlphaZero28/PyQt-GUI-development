@@ -155,9 +155,9 @@ class imgProcess():
         # global num
 
         if flag == 0:
-            set_config = '--psm 7'
+            set_config = r'-l ben+eng --psm 7'
         elif flag == 1:
-            set_config = '--psm 3'
+            set_config = r'-l ben+eng --psm 3'
         # im = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         img = np.pad(img, ((10, 10), (100, 100)), 'constant',
@@ -180,5 +180,5 @@ class imgProcess():
 
 
         text = pytesseract.image_to_string(
-            img, lang='ben', config=set_config)
+            img, config=set_config)
         return text
