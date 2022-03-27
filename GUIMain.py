@@ -18,7 +18,7 @@ class GUIMainWindow(QMainWindow):
         super(GUIMainWindow, self).__init__()
         self.showMaximized()
 
-        self.setWindowTitle("Accessible PDF Reader")
+        self.setWindowTitle("Pathak")
         self.setWindowIcon(QIcon('./assets/pdf-reader.png'))
 
         width = QtWidgets.QDesktopWidget().screenGeometry().width()
