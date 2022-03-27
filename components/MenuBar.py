@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QAction, QFileDialog, QWidget,QApplication,QLabel
 import sys 
 from components.ImageProcessing import imgProcess
+from components.config import debug
 
 class cMenuBar(QWidget):
     def __init__(self, mainwindow):
@@ -80,8 +81,14 @@ class cMenuBar(QWidget):
     def set_main_view(self, cmain_view):
         self.cmain_view = cmain_view
 
+        
     def openFiles(self):
         fname = QFileDialog.getOpenFileName(
-            self, 'Open File', "")
+            self, 'Open File', "", "PDF files (*.pdf);;")
+        
+        if fname[0]=='':
+            return
+
+        print('fname',fname)
         imgs = imgProcess.get_pages(fname[0])
         self.cmain_view.set_imgs(imgs)

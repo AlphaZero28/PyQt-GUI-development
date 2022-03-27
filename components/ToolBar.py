@@ -5,8 +5,10 @@ from PyQt5.QtGui import QIcon, QImage
 import fitz
 # from matplotlib import style
 from components.ImageProcessing import imgProcess
+from components.config import debug
 from docx import Document
 from docx.shared import Pt 
+
 
 
 class cToolBar(QWidget):
@@ -61,8 +63,17 @@ class cToolBar(QWidget):
         self.cmain_view.set_zoom(self.zoom)
 
     def openFiles(self):
+        if debug:
+            name = r'book.pdf'
+            imgs = imgProcess.get_pages(name)
+            self.cmain_view.set_imgs(imgs)
+            return
+
         fname = QFileDialog.getOpenFileName(
-            self, 'Open File', "")
+            self, 'Open File', "", "PDF files (*.pdf);;")
+        
+        if fname[0]=='':
+            return
 
         # self.get_pages(fname[0])
         self.imgs = imgProcess.get_pages(fname[0])

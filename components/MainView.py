@@ -1,10 +1,11 @@
 from PyQt5.QtCore import QRect, Qt
-from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel
-from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel, QPushButton, QTextEdit
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QPixmap, QImage,QFont
 from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
 from components.ToolBar import cToolBar
 from components.ImageProcessing import imgProcess
+from components.config import debug
 import PIL.Image as Image
 import io
 import numpy as np
@@ -18,8 +19,9 @@ class cMainView(QWidget):
         self.mainwindow = mainwindow
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
+        
         self.imgs = []
-        self.zoom = 1
+        self.zoom = 1.75
         self.page_num = 0
         self.run_count = 0
 
@@ -28,6 +30,9 @@ class cMainView(QWidget):
         # LEFT and RIGHT SPACER
         self.verticalSpacer = QtWidgets.QSpacerItem(
             80, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        
+        # if debug:
+        #     self.debug_show_page()
 
     def set_zoom(self, value):
         self.zoom = value
@@ -53,6 +58,78 @@ class cMainView(QWidget):
 
     def goto_page(self, page_num):
         self.show_single_page(self.imgs[page_num])
+
+    
+    def debug_show_page(self):
+        print('here')
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+
+        groupBox = QGroupBox()  # groupBox will contain the formLayout of the pages
+        form_layout = QFormLayout()
+
+        form_layout.setContentsMargins(0, 0, 0, 0)
+        form_layout.setVerticalSpacing(0)
+
+        hbox_temp = QHBoxLayout()
+        hbox_temp.setContentsMargins(0, 0, 0, 0)
+        container = QWidget()
+        container.setStyleSheet('background: white;')
+
+        # Line #1
+        line = QLabel(container)
+        line.setText("লেখক-পরিচিতি : ঈশ্বরচন্দ্র বিদ্যাসাগর পশ্চিমবঙ্গের মেদিনীপুর জেলার বীরসিংহ গ্রামে ২৬শে সেপ্টেম্বর")
+        line.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        line.setFont(QFont('Arial',12))
+        line.adjustSize()
+                # print(i)
+        line.move(100, 100)
+        self.scroll_area.ensureWidgetVisible(line)
+
+        # Line #2
+        line2 = QLabel(container)
+        line2.setText("১৮২০ সালে জন্মগ্রহণ করেন । তিনি কলকাতা সংস্কৃত কলেজের ছাত্র । প্রথমে সংস্কৃত ও পরে ইংরেজি ভাষায়")
+        line2.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        line2.setFont(QFont('Arial',12))
+        line2.adjustSize()
+                # print(i)
+        line2.move(100, 200)
+        self.scroll_area.ensureWidgetVisible(line2)
+
+        line3 = QPushButton('১৮২০ সালে জন্মগ্রহণ করেন ',container)
+        line3.setFont(QFont('Arial',12))
+        line3.adjustSize()
+        line3.move(100,300)
+        line3.setFlat(True)
+        # line3.setDefault(False)
+        # line3.setAutoDefault(False)
+
+        line4 = QTextEdit(container)
+        line4.setReadOnly(True)
+        line4.setText('১৮২০ সালে জন্মগ্রহণ করেন ')
+        line4.setFont(QFont('Arial',12))
+        line4.setStyleSheet("border: 0px solid black; ")
+        line4.adjustSize()
+        line4.move(100,400)
+
+        
+        hbox_temp.addItem(self.verticalSpacer)
+        hbox_temp.addWidget(container)
+        hbox_temp.addItem(self.verticalSpacer)
+
+        tempQW = QWidget(self)
+
+        tempQW.setLayout(hbox_temp)
+
+        form_layout.addRow(tempQW)
+        groupBox.setLayout(form_layout)
+
+        scroll_area.setWidget(groupBox)
+
+        self.vbox_layout.replaceWidget(self.scroll_area, scroll_area)
+        self.scroll_area = scroll_area
 
     # def save_file(self):
     #     [tempQW, page_text] = self.create_page(self.imgs[0])
@@ -99,6 +176,7 @@ class cMainView(QWidget):
             self.form_layout.addRow(tempQW)
 
         self.groupBox.setLayout(self.form_layout)
+
 
     def create_page(self, img):
 
@@ -261,24 +339,43 @@ class cMainView(QWidget):
                 #     f.write(txt)
                 page_text.append(txt)
 
-
-
-                line = QLabel(container)
-                line.setText(txt)
-                line.setTextInteractionFlags(Qt.TextSelectableByMouse)
-
                 x1 = bounding_vertical_rect[i][0][0]
                 x2 = bounding_vertical_rect[i][-1][1]
                 
+                # line = QLabel(container)
+                # line.setText(txt)
+                # line.setTextInteractionFlags(Qt.TextSelectableByMouse)
                 # line.setStyleSheet("background:rgba(0,255,0,100);")
                 
+                # line.setFont(QFont('Arial',12))
+                # line.adjustSize()
+                # # print(i)
+                # line.move(x1*width_ratio, r1*height_ratio)
+                # # line.adjustSize()
+                # line.setFixedHeight((r2-r1+12)*height_ratio)
+                # line.setFixedWidth((x2-x1+150)*width_ratio)
+
+                # line = QTextEdit(container)
+                # line.setTabChangesFocus(True)
+                # line.move(x1*width_ratio, r1*height_ratio)
+                # line.setReadOnly(True)
+                # line.setText(txt)
+                # line.adjustSize()
+                # line.setFont(QFont('Arial',12))
+                # line.setStyleSheet("border: 0px solid black;background:rgba(255,255,255,1);")
+                # # line.setFixedHeight((r2-r1+12)*height_ratio)
+                # line.setFixedWidth((x2-x1+150)*width_ratio)
+
+                line = QPushButton(txt,container)
                 line.setFont(QFont('Arial',12))
                 line.adjustSize()
-                # print(i)
                 line.move(x1*width_ratio, r1*height_ratio)
-                # line.adjustSize()
-                line.setFixedHeight((r2-r1+12)*height_ratio)
+                line.setFlat(True)
+                line.setStyleSheet("border: 0px solid black;background:rgba(255,255,255,1);text-align:left;")
+                # line.setFixedHeight((r2-r1+12)*height_ratio)
                 line.setFixedWidth((x2-x1+150)*width_ratio)
+                
+
                 # width = QtWidgets.QDesktopWidget().screenGeometry().width()
 
             # plt.show()
