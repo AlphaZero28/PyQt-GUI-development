@@ -33,7 +33,7 @@ exe = EXE(pyz,
           disable_windowed_traceback=False,
           target_arch=None,
           codesign_identity=None,
-          entitlements_file=None )
+          entitlements_file=None , icon='F:\\My_Folder\\__Projects__\\InnovationGarage\\Accessible-PDF-Reader\\App\\pyqt-pdfreader\\assets\\app_logo_icon.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
