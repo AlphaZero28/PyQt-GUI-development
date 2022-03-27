@@ -39,8 +39,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "F:\My_Folder\__Projects__\InnovationGarage\Accessible-PDF-Reader\App\pyqt-pdfreader\install\run\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "F:\My_Folder\__Projects__\InnovationGarage\Accessible-PDF-Reader\App\pyqt-pdfreader\install\run\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "F:\My_Folder\__Projects__\InnovationGarage\Accessible-PDF-Reader\App\pyqt-pdfreader\dist\run\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "F:\My_Folder\__Projects__\InnovationGarage\Accessible-PDF-Reader\App\pyqt-pdfreader\dist\run\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
