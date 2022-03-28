@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QRect, Qt
-from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QTabWidget,QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel, QPushButton, QTextEdit
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QPixmap, QImage,QFont
 from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
@@ -31,8 +31,8 @@ class cMainView(QWidget):
         self.verticalSpacer = QtWidgets.QSpacerItem(
             80, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         
-        # if debug:
-        #     self.debug_show_page()
+        if debug:
+            self.debug_show_page()
 
     def set_zoom(self, value):
         self.zoom = value
@@ -81,43 +81,48 @@ class cMainView(QWidget):
         container = QWidget()
         container.setStyleSheet('background: white;')
 
-        # Line #1
-        line = QLabel(container)
-        line.setText("লেখক-পরিচিতি : ঈশ্বরচন্দ্র বিদ্যাসাগর পশ্চিমবঙ্গের মেদিনীপুর জেলার বীরসিংহ গ্রামে ২৬শে সেপ্টেম্বর")
-        line.setTextInteractionFlags(Qt.TextSelectableByMouse)
-
-        line.setFont(QFont('Arial',12))
-        line.adjustSize()
-                # print(i)
-        line.move(100, 100)
-        self.scroll_area.ensureWidgetVisible(line)
-
-        # Line #2
-        line2 = QLabel(container)
-        line2.setText("১৮২০ সালে জন্মগ্রহণ করেন । তিনি কলকাতা সংস্কৃত কলেজের ছাত্র । প্রথমে সংস্কৃত ও পরে ইংরেজি ভাষায়")
-        line2.setTextInteractionFlags(Qt.TextSelectableByMouse)
-
+        line2 = QPushButton('১৮২০ সালে জন্মগ্রহণ করেন ',container)
         line2.setFont(QFont('Arial',12))
+        line2.setDefault(False)
         line2.adjustSize()
-                # print(i)
-        line2.move(100, 200)
-        self.scroll_area.ensureWidgetVisible(line2)
+        line2.move(100,200)
+        line2.setFlat(True)
+        # line2.setAccessibleName('butt')
+        line2.setAccessibleDescription('১৮২০ সালে জন্মগ্রহণ করেন ')
+        line2.setFocus()
 
         line3 = QPushButton('১৮২০ সালে জন্মগ্রহণ করেন ',container)
         line3.setFont(QFont('Arial',12))
         line3.adjustSize()
         line3.move(100,300)
         line3.setFlat(True)
+
+        line = QLabel(container)
+        line.setText('১৮২০ সালে জন্মগ্রহণ করেন 2')
+        line.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        # line.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        line.setStyleSheet("background:white")
+        # QWidget.setTabOrder(line,line3)
+        line.setFont(QFont('Arial',12))
+        # line.setAccessibleDescription('১৮২০ সালে জন্মগ্রহণ করেন ')
+        line.adjustSize()
+        # print(i)
+        line.move(100,400)
+        
+
+        
+        # line.adjustSize()
+
         # line3.setDefault(False)
         # line3.setAutoDefault(False)
 
-        line4 = QTextEdit(container)
-        line4.setReadOnly(True)
-        line4.setText('১৮২০ সালে জন্মগ্রহণ করেন ')
-        line4.setFont(QFont('Arial',12))
-        line4.setStyleSheet("border: 0px solid black; ")
-        line4.adjustSize()
-        line4.move(100,400)
+        # line4 = QTextEdit(container)
+        # line4.setReadOnly(True)
+        # line4.setText('১৮২০ সালে জন্মগ্রহণ করেন \n বাংলাদেশ এর সকল ব্লগ এর লিস্ট একবার দেখে নিন')
+        # line4.setFont(QFont('Arial',12))
+        # line4.setStyleSheet("border: 0px solid black; ")
+        # line4.adjustSize()
+        # line4.move(100,500)
 
         
         hbox_temp.addItem(self.verticalSpacer)
@@ -347,21 +352,24 @@ class cMainView(QWidget):
                 x1 = bounding_vertical_rect[i][0][0]
                 x2 = bounding_vertical_rect[i][-1][1]
                 
-                # line = QLabel(container)
-                # line.setText(txt)
-                # line.setTextInteractionFlags(Qt.TextSelectableByMouse)
-                # line.setStyleSheet("background:rgba(0,255,0,100);")
+                line = QLabel(container)
                 
-                # line.setFont(QFont('Arial',12))
-                # line.adjustSize()
-                # # print(i)
-                # line.move(x1*width_ratio, r1*height_ratio)
-                # # line.adjustSize()
-                # line.setFixedHeight((r2-r1+12)*height_ratio)
-                # line.setFixedWidth((x2-x1+150)*width_ratio)
+                line.setText(txt)
+                line.setTextInteractionFlags(Qt.TextSelectableByMouse)
+                line.setStyleSheet("background:white")
+                
+                line.setFont(QFont('Arial',12))
+                line.adjustSize()
+                # print(i)
+                line.move(x1*width_ratio, r1*height_ratio)
+                line.adjustSize()
+                line.setFixedHeight((r2-r1+12)*height_ratio)
+                line.setFixedWidth((x2-x1+150)*width_ratio)
+                line.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
                 # line = QTextEdit(container)
-                # line.setTabChangesFocus(True)
+                # # line.setTabChangesFocus(True)
+                # line.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
                 # line.move(x1*width_ratio, r1*height_ratio)
                 # line.setReadOnly(True)
                 # line.setText(txt)
@@ -371,14 +379,14 @@ class cMainView(QWidget):
                 # # line.setFixedHeight((r2-r1+12)*height_ratio)
                 # line.setFixedWidth((x2-x1+150)*width_ratio)
 
-                line = QPushButton(txt,container)
-                line.setFont(QFont('Arial',12))
-                line.adjustSize()
-                line.move(x1*width_ratio, r1*height_ratio)
-                line.setFlat(True)
-                line.setStyleSheet("border: 0px solid black;background:rgba(255,255,255,1);text-align:left;")
-                # line.setFixedHeight((r2-r1+12)*height_ratio)
-                line.setFixedWidth((x2-x1+150)*width_ratio)
+                # line = QPushButton(txt,container)
+                # line.setFont(QFont('Arial',12))
+                # line.adjustSize()
+                # line.move(x1*width_ratio, r1*height_ratio)
+                # line.setFlat(True)
+                # line.setStyleSheet("border: 0px solid black;background:rgba(255,255,255,1);text-align:left;")
+                # # line.setFixedHeight((r2-r1+12)*height_ratio)
+                # line.setFixedWidth((x2-x1+150)*width_ratio)
                 
 
                 # width = QtWidgets.QDesktopWidget().screenGeometry().width()

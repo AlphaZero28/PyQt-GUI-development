@@ -28,6 +28,7 @@ class GUIMainWindow(QMainWindow):
         self.setGeometry(0, 0, width, height)
         # self.setMinimumSize(400,500)
         # Createint a Central Widget to attach the vbox_layout
+        # self.central_widget = QtWidgets.QWidget()
         self.central_widget = QtWidgets.QWidget()
         self.setCentralWidget(self.central_widget)
 
