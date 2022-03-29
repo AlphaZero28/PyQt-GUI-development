@@ -9,7 +9,19 @@ from components.config import debug
 from docx import Document
 from docx.shared import Pt 
 
+class FileLoader(QtCore.QObject):
+    finished = QtCore.pyqtSignal(list)
+    progress = QtCore.pyqtSignal(list)
+    def setPath(self,path):
+        self.path = path
+        print('path',path)
 
+    def run(self):
+        print('loading img')
+        imgs = imgProcess.get_pages(self.path)
+        # self.progress.emit(imgs)
+        self.finished.emit(imgs)
+                
 
 class cToolBar(QWidget):
     def __init__(self, mainwindow):
@@ -61,8 +73,7 @@ class cToolBar(QWidget):
 
         navigationBar = QToolBar("Navigation", self)
         navigationBar.addWidget(label)
-        navigationBar.addWidget(self.navigationBox)
-        
+        navigationBar.addWidget(self.navigationBox)        
 
         # add toolbar to mainwindow
         self.mainwindow.addToolBar(fileToolBar)
@@ -87,11 +98,11 @@ class cToolBar(QWidget):
         self.cmain_view.set_zoom(self.zoom)
 
     def openFiles(self):
-        if debug:
-            name = r'math-book-9-10-9-12.pdf'
-            imgs = imgProcess.get_pages(name)
-            self.cmain_view.set_imgs(imgs)
-            return
+        # if debug:
+        #     name = r'math-book-9-10-9-12.pdf'
+        #     imgs = imgProcess.get_pages(name)
+        #     self.cmain_view.set_imgs(imgs)
+        #     return
 
         fname = QFileDialog.getOpenFileName(
             self, 'Open File', "", "PDF files (*.pdf);;")
@@ -99,10 +110,34 @@ class cToolBar(QWidget):
         if fname[0]=='':
             return
 
-        # self.get_pages(fname[0])
-        self.imgs = imgProcess.get_pages(fname[0])
-        self.cmain_view.set_imgs(self.imgs)
-        # self.mainwindow.change_label(fname[0])
+        self.mainwindow.cstatus_bar.show_msg('Loading Page')
+        self.cmain_view.set_path(fname[0])
+        # # Step 2: Create a QThread object
+        # self.thread = QtCore.QThread()
+        # # Step 3: Create a worker object
+        # self.worker = FileLoader()
+        # self.worker.setPath(fname[0])
+        # # Step 4: Move worker to the thread
+        # self.worker.moveToThread(self.thread)
+        # # Step 5: Connect signals and slots
+        # self.thread.started.connect(self.worker.run)
+        # self.worker.finished.connect(self.thread.quit)
+        # self.worker.finished.connect(lambda imgs:self.cmain_view.set_imgs(imgs))
+        # self.thread.finished.connect(self.thread.deleteLater)
+        # # self.worker.progress.connect(add_img_to_view)
+        # # Step 6: Start the thread
+        # self.thread.start()
+
+        # # Final resets
+        # # self.longRunningBtn.setEnabled(False)
+        # self.thread.finished.connect(
+        #     lambda: print('finished')
+        # )
+
+        # # self.get_pages(fname[0])
+        # self.imgs = imgProcess.get_pages(fname[0])
+        # self.cmain_view.set_imgs(self.imgs)
+        # # self.mainwindow.change_label(fname[0])
 
 
     def saveFiles(self):

@@ -30,6 +30,7 @@ class GUIMainWindow(QMainWindow):
         # Createint a Central Widget to attach the vbox_layout
         # self.central_widget = QtWidgets.QWidget()
         self.central_widget = QtWidgets.QWidget()
+
         self.setCentralWidget(self.central_widget)
 
         # vbox_layout will contain the cMainView elements

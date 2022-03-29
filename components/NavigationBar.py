@@ -11,11 +11,13 @@ class cNavigationBar(QWidget):
 
         zoom_level = QLabel('100%')
         left_btn = QPushButton()
+        left_btn.setAccessibleName('Previous Page')
         left_btn.setFlat(True)
         left_btn.setIcon(QIcon('./assets/left-arrow.png'))
         left_btn.clicked.connect(self.prev_page)
 
         right_btn = QPushButton()
+        right_btn.setAccessibleName('Next Page')
         right_btn.setFlat(True)
         right_btn.setIcon(QIcon('./assets/right-arrow.png'))
         right_btn.clicked.connect(self.next_page)
