@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QRect, Qt
-from PyQt5.QtWidgets import QTabWidget,QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel, QPushButton, QTextEdit
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QPixmap, QImage,QFont
 from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
@@ -10,6 +10,11 @@ import PIL.Image as Image
 import io
 import numpy as np
 import cv2
+from PySide2.QtGui import QAccessible, QAccessibleEvent, QAccessibleInterface
+from PySide2.QtCore import QObject
+import PySide2.QtWidgets as pyQtWidget
+
+from components.ImageProcessing import imgProcess
 # import matplotlib.pyplot as plt
 
 class cMainView(QWidget):
@@ -27,12 +32,15 @@ class cMainView(QWidget):
 
         self.vbox_layout.addWidget(self.scroll_area, 10)
 
+
         # LEFT and RIGHT SPACER
         self.verticalSpacer = QtWidgets.QSpacerItem(
             80, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         
         if debug:
             self.debug_show_page()
+
+        
 
     def set_zoom(self, value):
         self.zoom = value
@@ -46,9 +54,14 @@ class cMainView(QWidget):
         self.page_num = 0
         self.goto_page(self.page_num)
 
+    def set_path(self,path):
+        self.path = path
+        self.page_num = 0
+        self.goto_page(self.page_num)
+
     def goto_specific_page(self, page_number):
         # print(page_num)
-        if page_number < len(self.imgs):
+        if page_number>=0 and page_number < len(self.imgs):
             self.goto_page(page_number)
 
     def goto_next_page(self):
@@ -62,11 +75,13 @@ class cMainView(QWidget):
             self.goto_page(self.page_num)
 
     def goto_page(self, page_num):
-        self.show_single_page(self.imgs[page_num])
+        # self.mainwindow.cstatus_bar.show_msg('working')
+        img = imgProcess.get_single_page(self.path,page_num)
+        self.show_single_page(img)
+        # self.show_single_page(self.imgs[page_num])
 
     
     def debug_show_page(self):
-        print('here')
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
 
@@ -140,12 +155,23 @@ class cMainView(QWidget):
 
         self.vbox_layout.replaceWidget(self.scroll_area, scroll_area)
         self.scroll_area = scroll_area
+        # self.scroll_area.setFocus()
 
+        # self.debug_accessibility()
+        
     # def save_file(self):
     #     [tempQW, page_text] = self.create_page(self.imgs[0])
     #     print(page_text)
+    def debug_accessibility(self):
+        print('accessibility debug', QAccessible.isActive())
+        qobj = QObject()
+        qobj = pyQtWidget.QLabel()
+        qobj.setText('hello')
+        event = QAccessibleEvent(qobj, QAccessible.Focus)
+        QAccessible.updateAccessibility(event)
 
     def show_single_page(self, img):
+
         self.run_count = self.run_count+1
 
         scroll_area = QScrollArea()
@@ -163,10 +189,17 @@ class cMainView(QWidget):
         form_layout.addRow(tempQW)
         groupBox.setLayout(form_layout)
 
+
         scroll_area.setWidget(groupBox)
+
 
         self.vbox_layout.replaceWidget(self.scroll_area, scroll_area)
         self.scroll_area = scroll_area
+        self.scroll_area.setAccessibleName('Page Number '+str(self.page_num+1))
+        self.scroll_area.setFocus()
+
+        self.debug_accessibility()
+        
 
     def show_page(self, imgs):
         self.run_count = self.run_count+1
@@ -367,31 +400,7 @@ class cMainView(QWidget):
                 line.setFixedWidth((x2-x1+150)*width_ratio)
                 line.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
-                # line = QTextEdit(container)
-                # # line.setTabChangesFocus(True)
-                # line.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-                # line.move(x1*width_ratio, r1*height_ratio)
-                # line.setReadOnly(True)
-                # line.setText(txt)
-                # line.adjustSize()
-                # line.setFont(QFont('Arial',12))
-                # line.setStyleSheet("border: 0px solid black;background:rgba(255,255,255,1);")
-                # # line.setFixedHeight((r2-r1+12)*height_ratio)
-                # line.setFixedWidth((x2-x1+150)*width_ratio)
-
-                # line = QPushButton(txt,container)
-                # line.setFont(QFont('Arial',12))
-                # line.adjustSize()
-                # line.move(x1*width_ratio, r1*height_ratio)
-                # line.setFlat(True)
-                # line.setStyleSheet("border: 0px solid black;background:rgba(255,255,255,1);text-align:left;")
-                # # line.setFixedHeight((r2-r1+12)*height_ratio)
-                # line.setFixedWidth((x2-x1+150)*width_ratio)
                 
-
-                # width = QtWidgets.QDesktopWidget().screenGeometry().width()
-
-            # plt.show()
             hbox_temp.addItem(self.verticalSpacer)
             hbox_temp.addWidget(container)
 

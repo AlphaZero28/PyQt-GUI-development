@@ -52,6 +52,21 @@ class imgProcess():
 
         return imgs
 
+    def get_single_page(filename,page_no):
+        ''' returns the pages from the given pdf file'''
+        # images = convert_from_path(filename)
+        # print(images[0])
+        doc = fitz.open(filename)
+        zoom = 4   # zoom factor
+        mat = fitz.Matrix(zoom, zoom)
+
+        page = doc.load_page(page_no)
+        pix = page.get_pixmap(matrix=mat)
+        pix.set_dpi(5000, 7200)
+        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        
+        return img
+
     def bgr2gray(img):
         ''' convert to gray image '''
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
