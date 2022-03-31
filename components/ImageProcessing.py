@@ -70,6 +70,7 @@ class imgProcess():
     def bgr2gray(img):
         ''' convert to gray image '''
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # cv2.imwrite('gray.png',img)
         return img
 
     def invertImage(img):
@@ -79,7 +80,10 @@ class imgProcess():
             # img = 255- img
             ret, img = cv2.threshold(
                 img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
+        # Morph open to remove noise
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+        img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel, iterations=1)
+        # cv2.imwrite('invert.png',img)
         return img
 
     def horizontal_hist(img):
@@ -91,7 +95,7 @@ class imgProcess():
             # /max(projection)*img.shape[1]
             x2 = int(projection[row])
             cv2.line(result, (0, row), (x2, row), (255, 255, 255), 1)
-
+        # cv2.imwrite('horizontal.png',result)
         return [result, projection]
 
     def bounding_horizontal_rect(hist_data):
@@ -105,7 +109,7 @@ class imgProcess():
                 pos1 = i-1
 
             elif (not i == 0) and val <= thresh_val and valp > thresh_val:
-                if (i-pos1) > 2:
+                if (i-pos1) > 1:
                     bounding_horizontal_rect.append((pos1, i+1))
             valp = val
 
@@ -120,6 +124,7 @@ class imgProcess():
         for i, (r1, r2) in enumerate(bounding_horizontal_rect):
             crop_img = img[r1:r2, 0:img.shape[1]]
             cropped_images.append(crop_img)
+            # cv2.imwrite('find.png',crop_img)
 
         return cropped_images
 
