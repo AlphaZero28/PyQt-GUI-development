@@ -399,7 +399,7 @@ class cMainView(QWidget):
                 line.move(x1*width_ratio, r1*height_ratio)
                 line.adjustSize()
                 line.setFixedHeight((r2-r1+12)*height_ratio)
-                line.setFixedWidth((x2-x1+150)*width_ratio)
+                line.setFixedWidth((x2-x1+50)*width_ratio)
                 line.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
                 
