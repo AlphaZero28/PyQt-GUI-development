@@ -7,3 +7,14 @@ ssh-key.pub
 ssh-access.sh
 push.bat
 README.md
+/dist
+/build
+
+/install/run
+/install/tesseract-ocr-w64-setup-v5.0.1.20220118.exe
+/install/ben.traineddata
+/install/pathak-installer.exe
+/install/setup.exe
+
+ssh-key
+ssh-key.pub
