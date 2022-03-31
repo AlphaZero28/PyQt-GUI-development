@@ -59,10 +59,12 @@ class cMainView(QWidget):
         self.page_num = 0
         self.goto_page(self.page_num)
 
-    def goto_specific_page(self, page_number):
+    def goto_specific_page(self, page_num):
+        self.page_num = page_num
         # print(page_num)
-        if page_number>=0 and page_number < len(self.imgs):
-            self.goto_page(page_number)
+        self.goto_page(self.page_num)
+        # if page_number>=0 and page_number < len(self.imgs):
+        #     self.goto_page(page_number)
 
     def goto_next_page(self):
         if not self.page_num == len(self.imgs)-1:
@@ -281,8 +283,8 @@ class cMainView(QWidget):
         # plt.imshow(lines[0],cmap='gray')
         # plt.imshow(lines[1],cmap='gray')
         # plt.show()
-        cv2.imwrite('line-1.png', lines[0])
-        cv2.imwrite('line-2.png', lines[1])
+        # cv2.imwrite('line-1.png', lines[0])
+        # cv2.imwrite('line-2.png', lines[1])
         # print(len(lines))
 
 
@@ -349,7 +351,7 @@ class cMainView(QWidget):
 
             # find bounding_verting_rect
                 words_in_line = imgProcess.bounding_vertical_rect(vert_data)
-
+                # print(words_in_line)
                 initial = words_in_line[0][0]
                 final = words_in_line[-1][1]
 

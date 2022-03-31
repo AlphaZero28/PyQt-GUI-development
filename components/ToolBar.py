@@ -1,5 +1,5 @@
 from PIL import Image
-from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar,QSpinBox, QLabel
+from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar,QSpinBox, QLabel, QPushButton
 from PyQt5 import QtCore,Qt
 from PyQt5.QtGui import QIcon, QImage
 import fitz
@@ -63,16 +63,19 @@ class cToolBar(QWidget):
 
         # navigation toolbar
         # add label for navigation
-        label = QLabel()
-        label.setText('GoTo')
+        # label = QLabel()
+        # label.setText('GoTo')
+        navButton = QPushButton('GoTo')
+        navButton.clicked.connect(self.navigationFunction)
+
 
         # add spinbox for navigation
         self.navigationBox = QSpinBox()
         # navigationBox.setFocusPolicy(Qt.NoFocus)
-        self.navigationBox.valueChanged.connect(self.navigationFunction)
+        # self.navigationBox.valueChanged.connect(self.navigationFunction)
 
         navigationBar = QToolBar("Navigation", self)
-        navigationBar.addWidget(label)
+        navigationBar.addWidget(navButton)
         navigationBar.addWidget(self.navigationBox)        
 
         # add toolbar to mainwindow
@@ -83,6 +86,7 @@ class cToolBar(QWidget):
 
     def navigationFunction(self):
         page_number = self.navigationBox.value()
+        print(page_number)
         self.cmain_view.goto_specific_page(page_number)
 
     def set_main_view(self, cmain_view):
