@@ -115,7 +115,8 @@ class cToolBar(QWidget):
             return
 
         self.mainwindow.cstatus_bar.show_msg('Loading Page')
-        self.cmain_view.set_path(fname[0])
+        total_page_number = imgProcess.get_page_count(fname[0])
+        self.cmain_view.set_path(fname[0],total_page_number)
         # # Step 2: Create a QThread object
         # self.thread = QtCore.QThread()
         # # Step 3: Create a worker object

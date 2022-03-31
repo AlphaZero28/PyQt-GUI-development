@@ -33,6 +33,10 @@ class imgProcess():
             imgs.append(opencvImage)
 
         return imgs
+    def get_page_count(filename):
+        doc = fitz.open(filename)
+        total_page_num = len(doc)
+        return total_page_num
 
     def get_pages(filename):
         ''' returns the pages from the given pdf file'''
