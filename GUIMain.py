@@ -53,6 +53,7 @@ class GUIMainWindow(QMainWindow):
 
         # initializing STATUS BAR
         self.cstatus_bar = cStatusBar(self)
+        self.cmain_view.set_status_bar(self.cstatus_bar)
 
     def keyPressEvent(self, event):
         print(event.key())
@@ -66,6 +67,7 @@ class GUIMainWindow(QMainWindow):
         self.ctool_bar.set_main_view(self.cmain_view)
         self.cmenu_bar.set_main_view(self.cmain_view)
         # self.navigation_bar.set_main_view(self.cmain_view)
+        
 
     def change_label(self, txt):
         self.label.setText(txt)
