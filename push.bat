@@ -1,4 +1,8 @@
 @echo off
+:: CREATING REQUIREMENTS FOR Python MODULE
+rem call conda activate pdf-reader
+rem call pip freeze>requirements.txt
+
 :: LOG PREVIOUS COMMITS
 call git log -3 --oneline --reverse
 

@@ -5,12 +5,12 @@ import PIL.Image as Image
 import fitz
 import pytesseract
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import platform
 
 if platform.system().lower()=='windows':
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
+num = 0
 class imgProcess():
 
     def pdf2img(filename):
@@ -52,9 +52,25 @@ class imgProcess():
 
         return imgs
 
+    def get_single_page(filename,page_no):
+        ''' returns the pages from the given pdf file'''
+        # images = convert_from_path(filename)
+        # print(images[0])
+        doc = fitz.open(filename)
+        zoom = 4   # zoom factor
+        mat = fitz.Matrix(zoom, zoom)
+
+        page = doc.load_page(page_no)
+        pix = page.get_pixmap(matrix=mat)
+        pix.set_dpi(5000, 7200)
+        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        
+        return img
+
     def bgr2gray(img):
         ''' convert to gray image '''
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # cv2.imwrite('gray.png',img)
         return img
 
     def invertImage(img):
@@ -64,7 +80,10 @@ class imgProcess():
             # img = 255- img
             ret, img = cv2.threshold(
                 img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
+        # Morph open to remove noise
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+        img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel, iterations=1)
+        # cv2.imwrite('invert.png',img)
         return img
 
     def horizontal_hist(img):
@@ -76,7 +95,7 @@ class imgProcess():
             # /max(projection)*img.shape[1]
             x2 = int(projection[row])
             cv2.line(result, (0, row), (x2, row), (255, 255, 255), 1)
-
+        # cv2.imwrite('horizontal.png',result)
         return [result, projection]
 
     def bounding_horizontal_rect(hist_data):
@@ -90,7 +109,7 @@ class imgProcess():
                 pos1 = i-1
 
             elif (not i == 0) and val <= thresh_val and valp > thresh_val:
-                if (i-pos1) > 2:
+                if (i-pos1) > 1:
                     bounding_horizontal_rect.append((pos1, i+1))
             valp = val
 
@@ -105,6 +124,7 @@ class imgProcess():
         for i, (r1, r2) in enumerate(bounding_horizontal_rect):
             crop_img = img[r1:r2, 0:img.shape[1]]
             cropped_images.append(crop_img)
+            # cv2.imwrite('find.png',crop_img)
 
         return cropped_images
 
@@ -145,25 +165,40 @@ class imgProcess():
 
         return cropped_images
 
+    
+
+     
     def pytesseract_apply( img, flag, line = 0):
         ''' Text detection in the image. 
         flag = 0 when image conatains line text. 
         flag = 1 when image containes word text '''
-
+        # global num
 
         if flag == 0:
-            set_config = '--psm 7'
+            set_config = r'-l ben+eng --psm 7'
         elif flag == 1:
-            set_config = '--psm 3'
+            set_config = r'-l ben+eng --psm 3'
         # im = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        im2 = np.pad(img, ((10, 10), (100, 100)), 'constant',
+
+        img = np.pad(img, ((10, 10), (100, 100)), 'constant',
                      constant_values=(0, 0))
+        # imgname = 'images/img' + str(num)+'.png'
+        # num += 1 
+
+        # if (img.sum(axis=1).sum()/img.size) > 50:
+            # img = 255- img
+        ret, img = cv2.threshold(
+            img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+        # cv2.imwrite(imgname, img)
 
         # if line == 5:
         #     plt.imshow(im2, cmap='gray')
         #     plt.show()
         #     plt.axis('off')
 
+
+
         text = pytesseract.image_to_string(
-            im2, lang='ben', config=set_config)
+            img, config=set_config)
         return text

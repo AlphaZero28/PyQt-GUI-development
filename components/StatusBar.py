@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QStatusBar, QWidget
+from PyQt5.QtWidgets import QStatusBar, QWidget, QLabel
 from PyQt5.QtGui import QFont
 
 class cStatusBar(QWidget):
@@ -7,6 +7,8 @@ class cStatusBar(QWidget):
         self.statusBar = QStatusBar()
         mainwindow.setStatusBar(self.statusBar)
 
+        # self.label = QLabel(self.statusBar)
+        # self.label.setText('hi')
         self.show_msg('hello')
         
         self.statusBar.setFont(QFont('SansSerif', 7))
@@ -18,7 +20,11 @@ class cStatusBar(QWidget):
         ''')
 
     def show_msg(self, msg):
+        # self.label.setText(msg)
+        # self.label.setFocus()
         self.statusBar.showMessage(msg)
+        self.statusBar.setFocus()
+
         
 
         

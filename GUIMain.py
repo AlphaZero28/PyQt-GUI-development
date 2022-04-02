@@ -5,7 +5,7 @@ from components.ToolBar import cToolBar  # custom toolbar
 from components.StatusBar import cStatusBar
 from components.ContextMenu import cContextMenu
 import sys
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout
 from PyQt5.QtGui import QIcon
 
@@ -18,7 +18,7 @@ class GUIMainWindow(QMainWindow):
         super(GUIMainWindow, self).__init__()
         self.showMaximized()
 
-        self.setWindowTitle("Accessible PDF Reader")
+        self.setWindowTitle("Pathak")
         self.setWindowIcon(QIcon('./assets/pdf-reader.png'))
 
         width = QtWidgets.QDesktopWidget().screenGeometry().width()
@@ -26,16 +26,18 @@ class GUIMainWindow(QMainWindow):
         # width = 400
         # height = 500
         self.setGeometry(0, 0, width, height)
-
+        # self.setMinimumSize(400,500)
         # Createint a Central Widget to attach the vbox_layout
+        # self.central_widget = QtWidgets.QWidget()
         self.central_widget = QtWidgets.QWidget()
+
         self.setCentralWidget(self.central_widget)
 
         # vbox_layout will contain the cMainView elements
         self.vbox_layout = QVBoxLayout()
         self.vbox_layout.setContentsMargins(0, 0, 0, 0)
         self.vbox_layout.setSpacing(0)
-
+        
         self.central_widget.setLayout(self.vbox_layout)
 
         # initializing MENUBAR and TOOLBAR
@@ -51,6 +53,13 @@ class GUIMainWindow(QMainWindow):
 
         # initializing STATUS BAR
         self.cstatus_bar = cStatusBar(self)
+
+    def keyPressEvent(self, event):
+        print(event.key())
+        if event.key() == QtCore.Qt.Key_D:
+            self.cmain_view.goto_next_page()
+        elif event.key() == QtCore.Qt.Key_A:
+            self.cmain_view.goto_prev_page()
 
     def initUI(self):
         self.cmain_view = cMainView(self, self.vbox_layout)
