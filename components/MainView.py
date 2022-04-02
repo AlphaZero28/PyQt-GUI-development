@@ -93,11 +93,11 @@ class cMainView(QWidget):
         self.thread = QThread()
         # Step 3: Create a worker object
         self.worker = Worker()
-        self.worker.init(img,page_width,page_height,self.zoom)
+        self.worker.thread_function_init(img,page_width,page_height,self.zoom)
         # Step 4: Move worker to the thread
         self.worker.moveToThread(self.thread)
         # Step 5: Connect signals and slots
-        self.thread.started.connect(self.worker.run)
+        self.thread.started.connect(self.worker.thread_function)
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)

@@ -18,14 +18,14 @@ class Worker(QObject):
     finished = pyqtSignal()
     progress = pyqtSignal(list)
 
-    def init(self, img,page_width,page_height,zoom):
+    def thread_function_init(self, img,page_width,page_height,zoom):
         self.img = img
         self.page_width = page_width
         self.page_height = page_height
         self.zoom = zoom
  
 
-    def run(self):
+    def thread_function(self):
         """Long-running task."""
         cvImage = cv2.cvtColor(np.array(self.img), cv2.COLOR_RGB2BGR)
         # convert to gray img
@@ -44,12 +44,13 @@ class Worker(QObject):
         # cropped img
         lines = imgProcess.find_lines(bounding_horizontal_rect, inv_img)
 
-        img_bytes = self.img.tobytes()
+        # img_bytes = self.img.tobytes()
 
-        qim = QImage(img_bytes, self.img.size[0],
-                     self.img.size[1], QImage.Format_RGB888)
-        # pixMap = QPixmap.fromImage(img)
-        pixMap = QPixmap(qim)
+        # qim = QImage(img_bytes, self.img.size[0],
+        #              self.img.size[1], QImage.Format_RGB888)
+        cv2.imwrite('cfile.png',np.array(self.img))
+        pixMap = QPixmap.fromImage(QImage('cfile.png'))
+        # pixMap = QPixmap(qim)
 
         pixMap = pixMap.scaled(self.page_width,
                                self.page_height*self.zoom, Qt.KeepAspectRatio)
