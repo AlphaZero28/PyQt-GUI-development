@@ -84,6 +84,7 @@ class cToolBar(QWidget):
         self.mainwindow.addToolBar(navigationBar)
         
 
+
     def navigationFunction(self):
         page_number = self.navigationBox.value()
         print(page_number)
@@ -108,8 +109,12 @@ class cToolBar(QWidget):
         #     self.cmain_view.set_imgs(imgs)
         #     return
 
-        fname = QFileDialog.getOpenFileName(
-            self, 'Open File', "", "PDF files (*.pdf);;")
+        if not debug:
+            fname = QFileDialog.getOpenFileName(
+                self, 'Open File', "", "PDF files (*.pdf);;")
+        else:
+            fname = [r'Suchitra Sen Uttiron O Antaral By Ranjan Banerjee (bdebooks.com).pdf']
+            # fname = [r'book2.pdf']
         
         if fname[0]=='':
             return

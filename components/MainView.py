@@ -303,12 +303,12 @@ class cMainView(QWidget):
 
         # hist_img_rgb = cv2.cvtColor(hist_img, cv2.COLOR_GRAY2RGB)
 
-        img_bytes = img.tobytes()
-
-        qim = QImage(img_bytes, img.size[0],
-                     img.size[1], QImage.Format_RGB888)
-        # pixMap = QPixmap.fromImage(img)
-        pixMap = QPixmap(qim)
+        # img_bytes = img.tobytes()
+        # qim = QImage(img_bytes, img.size[0],
+        #              img.size[1], QImage.Format_RGB888)
+        cv2.imwrite('cpage.png',np.array(img))
+        pixMap = QPixmap.fromImage(QImage('cpage.png'))
+        # pixMap = QPixmap(qim)
 
         pixMap = pixMap.scaled(page_width,
                                page_height*self.zoom, Qt.KeepAspectRatio)
@@ -413,3 +413,4 @@ class cMainView(QWidget):
         tempQW.setLayout(hbox_temp)
 
         return [tempQW, page_text]
+
