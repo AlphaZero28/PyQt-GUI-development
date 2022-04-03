@@ -5,14 +5,12 @@ from PyQt5.QtGui import QPixmap, QImage,QFont
 from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
 from components.ToolBar import cToolBar
 from components.ImageProcessing import imgProcess
-from components.config import debug
+from components.config import DEBUG
 import PIL.Image as Image
 import io
 import numpy as np
 import cv2
-from PySide2.QtGui import QAccessible, QAccessibleEvent, QAccessibleInterface
-from PySide2.QtCore import QObject
-import PySide2.QtWidgets as pyQtWidget
+
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
 from components.ImageProcessing import imgProcess
@@ -27,9 +25,12 @@ class cMainView(QWidget):
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         
+        
+
         self.imgs = []
         self.zoom = 1.75
         self.page_num = 0
+        self.total_page_number = 0
         self.run_count = 0
 
         self.vbox_layout.addWidget(self.scroll_area, 10)
@@ -39,16 +40,18 @@ class cMainView(QWidget):
         self.verticalSpacer = QtWidgets.QSpacerItem(
             80, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         
-        if debug:
+        if DEBUG:
             self.debug_show_page()
 
     def set_status_bar(self,status_bar):
         self.status_bar = status_bar
 
     def set_zoom(self, value):
+        if self.total_page_number==0:
+            return
         self.zoom = value
         # self.show_page(self.imgs)
-        self.show_single_page(self.imgs[0])
+        self.goto_page(self.page_num)
         # print(self.zoom)
 
     def set_imgs(self, imgs):
@@ -65,10 +68,9 @@ class cMainView(QWidget):
         self.goto_page(self.page_num)
 
     def goto_specific_page(self, page_num):
-        self.page_num = page_num
-        
-        if self.page_number>=0 and self.page_number < self.total_page_number:
-            self.goto_page(self.page_number)
+        if page_num-1>=0 and page_num-1 < self.total_page_number:
+            self.page_num = page_num-1
+            self.goto_page(self.page_num)
 
     def goto_next_page(self):
         if self.page_num < self.total_page_number-1:
@@ -192,12 +194,13 @@ class cMainView(QWidget):
     #     [tempQW, page_text] = self.create_page(self.imgs[0])
     #     print(page_text)
     def debug_accessibility(self):
-        print('accessibility debug', QAccessible.isActive())
-        qobj = QObject()
-        qobj = pyQtWidget.QLabel()
-        qobj.setText('hello')
-        event = QAccessibleEvent(qobj, QAccessible.Focus)
-        QAccessible.updateAccessibility(event)
+        pass
+        # print('accessibility debug', QAccessible.isActive())
+        # qobj = QObject()
+        # qobj = pyQtWidget.QLabel()
+        # qobj.setText('hello')
+        # event = QAccessibleEvent(qobj, QAccessible.Focus)
+        # QAccessible.updateAccessibility(event)
 
     def show_single_page(self, lst):
         [no_of_lines,pixMap,bounding_box,height_ratio,width_ratio] = lst

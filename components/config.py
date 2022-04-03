@@ -1,2 +1,2 @@
-debug = True
-# debug = False
+# DEBUG = True
+DEBUG = False

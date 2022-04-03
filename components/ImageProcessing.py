@@ -179,9 +179,11 @@ class imgProcess():
         # global num
 
         if flag == 0:
-            set_config = r'-l ben+eng --psm 7'
+            set_config = r'--psm 7'
         elif flag == 1:
-            set_config = r'-l ben+eng --psm 3'
+            set_config = r'--psm 3'
+        # set_config = r'-l ben+eng '+set_config
+        set_config = r'-l ben '+set_config
         # im = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         img = np.pad(img, ((10, 10), (100, 100)), 'constant',

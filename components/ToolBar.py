@@ -1,13 +1,15 @@
 from PIL import Image
 from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar,QSpinBox, QLabel, QPushButton
 from PyQt5 import QtCore,Qt
+from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon, QImage
 import fitz
 # from matplotlib import style
 from components.ImageProcessing import imgProcess
-from components.config import debug
+from components.config import DEBUG
 from docx import Document
 from docx.shared import Pt 
+from components.Worker import SaveFileWorker
 
 class FileLoader(QtCore.QObject):
     finished = QtCore.pyqtSignal(list)
@@ -28,6 +30,7 @@ class cToolBar(QWidget):
         super(cToolBar, self).__init__()
         self.mainwindow = mainwindow
         self.zoom = 1
+        self.total_page_number = 0
 
         # file toolbar
         fileToolBar = QToolBar("File", self)
@@ -102,21 +105,23 @@ class cToolBar(QWidget):
         self.cmain_view.set_zoom(self.zoom)
 
     def openFiles(self):
-        # if debug:
+        # if DEBUG:
         #     name = r'math-book-9-10-9-12.pdf'
         #     imgs = imgProcess.get_pages(name)
         #     self.cmain_view.set_imgs(imgs)
         #     return
-
-        fname = QFileDialog.getOpenFileName(
-            self, 'Open File', "", "PDF files (*.pdf);;")
+        if DEBUG:
+            fname = ['math-book-9-10-9-12.pdf']
+        else:
+            fname = QFileDialog.getOpenFileName(
+                self, 'Open File', "", "PDF files (*.pdf);;")
         
         if fname[0]=='':
             return
-
+        self.current_filename = fname[0]
         self.mainwindow.cstatus_bar.show_msg('Loading Page')
-        total_page_number = imgProcess.get_page_count(fname[0])
-        self.cmain_view.set_path(fname[0],total_page_number)
+        self.total_page_number = imgProcess.get_page_count(fname[0])
+        self.cmain_view.set_path(fname[0],self.total_page_number)
         # # Step 2: Create a QThread object
         # self.thread = QtCore.QThread()
         # # Step 3: Create a worker object
@@ -146,31 +151,59 @@ class cToolBar(QWidget):
 
 
     def saveFiles(self):
-        no_of_pages = len(self.imgs)
+        if self.total_page_number==0:
+            return
+        
+        def save_as_docx(lst):
+            [filename,no_of_pages,pages] = lst
+            # print(pages)
+            # pages = []
+            document = Document()
+            style = document.styles['Normal']
+            font = style.font
+            font.name  = 'Arial'
+            font.size = Pt(12)
+
+            for page in pages:
+                paragraph = document.add_paragraph(' ')
+                paragraph.style = document.styles['Normal']
+                # paragraph.add_run(page)
+                # paragraph.add_run('\n')
+                for line in page:
+                    paragraph.add_run(line)
+                    paragraph.add_run('\n')
+                
+                document.add_page_break()
+            document.save(filename)
+            self.mainwindow.cstatus_bar.show_msg('File Saved!')
+
+        no_of_pages = self.total_page_number
 
         # file = str(QFileDialog.get)
         file = QFileDialog.getSaveFileName(self)
         filename = file[0]
 
-        print(type(file))
 
-        # pages = []
-        document = Document()
-        style = document.styles['Normal']
-        font = style.font
-        font.name  = 'Arial'
-        font.size = Pt(12)
+        # Step 2: Create a QThread object
+        self.thread = QThread()
+        # Step 3: Create a worker object
+        self.worker = SaveFileWorker()
+        self.worker.thread_function_init(self.current_filename,self.total_page_number,filename)
+        # Step 4: Move worker to the thread
+        self.worker.moveToThread(self.thread)
+        # Step 5: Connect signals and slots
+        self.thread.started.connect(self.worker.thread_function)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.progress.connect(save_as_docx)
+        # Step 6: Start the thread
+        self.thread.start()
 
-        for i in range(no_of_pages):
-            [tempQW, page] = self.cmain_view.create_page(self.imgs[i]) 
-            paragraph = document.add_paragraph(' ')
-            paragraph.style = document.styles['Normal']
-            for line in page:
-                paragraph.add_run(line)
-                paragraph.add_run('\n')
-            
-            document.add_page_break()
-        document.save(filename)
+
+        # print(type(file))
+
+        
 
 
         # with open('sample.txt', 'a') as f:

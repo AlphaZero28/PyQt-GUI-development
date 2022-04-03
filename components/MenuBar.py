@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QAction, QFileDialog, QWidget,QApplication,QLabel
 import sys 
 from components.ImageProcessing import imgProcess
-from components.config import debug
+from components.config import DEBUG
 
 class cMenuBar(QWidget):
     def __init__(self, mainwindow):
@@ -18,6 +18,7 @@ class cMenuBar(QWidget):
     
         save_action = QAction('Save', self)
         save_action.setShortcut('Ctrl+S')
+        save_action.triggered.connect(self.saveFiles)
 
         
         exit_action = QAction('Exit', self)
@@ -83,12 +84,17 @@ class cMenuBar(QWidget):
 
         
     def openFiles(self):
-        fname = QFileDialog.getOpenFileName(
-            self, 'Open File', "", "PDF files (*.pdf);;")
-        
-        if fname[0]=='':
-            return
+        self.mainwindow.ctool_bar.openFiles()
 
-        print('fname',fname)
-        imgs = imgProcess.get_pages(fname[0])
-        self.cmain_view.set_imgs(imgs)
+    def saveFiles(self):
+        self.mainwindow.ctool_bar.saveFiles()
+
+        # fname = QFileDialog.getOpenFileName(
+        #     self, 'Open File', "", "PDF files (*.pdf);;")
+        
+        # if fname[0]=='':
+        #     return
+
+        # print('fname',fname)
+        # imgs = imgProcess.get_pages(fname[0])
+        # self.cmain_view.set_imgs(imgs)
