@@ -90,6 +90,24 @@ class cMainView(QWidget):
         img = imgProcess.get_single_page(self.path,page_num)
         page_width = QtWidgets.QDesktopWidget().screenGeometry().width()-3*80
         page_height = self.scroll_area.height()
+
+        cv2.imwrite('cfile.png',np.array(img))
+        pixMap = QPixmap.fromImage(QImage('cfile.png'))
+        # pixMap = QPixmap(qim)
+
+        self.pixMap = pixMap.scaled(page_width,
+                               page_height*self.zoom, Qt.KeepAspectRatio)
+        
+        pixMap_width = self.pixMap.size().width()
+        pixMap_height = self.pixMap.size().height()
+
+        # label creation per line
+
+        img_height = img.height
+        img_width = img.width
+        self.height_ratio = pixMap_height/img_height
+        self.width_ratio = pixMap_width/img_width
+
         # [no_of_lines,pixMap,bounding_box,height_ratio,width_ratio] = self.process(img,page_width,page_height,self.zoom)
         
         if WORK_ON_THREAD:
@@ -97,7 +115,7 @@ class cMainView(QWidget):
             self.thread = QThread()
             # Step 3: Create a worker object
             self.worker = Worker()
-            self.worker.thread_function_init(img,page_width,page_height,self.zoom)
+            self.worker.thread_function_init(img)
             # Step 4: Move worker to the thread
             self.worker.moveToThread(self.thread)
             # Step 5: Connect signals and slots
@@ -109,7 +127,7 @@ class cMainView(QWidget):
             # Step 6: Start the thread
             self.thread.start()
         else:
-            lst = ocr_on_page(img,page_width,page_height,self.zoom)
+            lst = ocr_on_page(img)
             self.show_single_page(lst)
 
         # self.show_single_page(no_of_lines,pixMap,bounding_box,height_ratio,width_ratio)
@@ -207,7 +225,7 @@ class cMainView(QWidget):
         # QAccessible.updateAccessibility(event)
 
     def show_single_page(self, lst):
-        [no_of_lines,pixMap,bounding_box,height_ratio,width_ratio] = lst
+        [no_of_lines,bounding_box] = lst
 
         self.run_count = self.run_count+1
         
@@ -223,7 +241,7 @@ class cMainView(QWidget):
         no_page = len(self.imgs)
 
         
-        [tempQW] = self.create_page(no_of_lines,pixMap,bounding_box,height_ratio,width_ratio)
+        [tempQW] = self.create_page(no_of_lines,self.pixMap,bounding_box,self.height_ratio,self.width_ratio)
 
         form_layout.addRow(tempQW)
         groupBox.setLayout(form_layout)
