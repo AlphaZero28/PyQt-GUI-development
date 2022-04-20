@@ -6,10 +6,11 @@ from PyQt5.QtGui import QIcon, QImage
 import fitz
 # from matplotlib import style
 from components.ImageProcessing import imgProcess
-from components.config import DEBUG
+from components.config import DEBUG, WORK_ON_THREAD
 from docx import Document
 from docx.shared import Pt 
-from components.Worker import SaveFileWorker
+from components.Worker import SaveFileWorker, ocr_load_pages
+
 
 class FileLoader(QtCore.QObject):
     finished = QtCore.pyqtSignal(list)
@@ -153,9 +154,15 @@ class cToolBar(QWidget):
     def saveFiles(self):
         if self.total_page_number==0:
             return
+
+        no_of_pages = self.total_page_number
+
+        # file = str(QFileDialog.get)
+        file = QFileDialog.getSaveFileName(self)
+        filename = file[0]
         
-        def save_as_docx(lst):
-            [filename,no_of_pages,pages] = lst
+        def save_as_docx(pages):
+            # [pages] = lst
             # print(pages)
             # pages = []
             document = Document()
@@ -177,29 +184,26 @@ class cToolBar(QWidget):
             document.save(filename)
             self.mainwindow.cstatus_bar.show_msg('File Saved!')
 
-        no_of_pages = self.total_page_number
-
-        # file = str(QFileDialog.get)
-        file = QFileDialog.getSaveFileName(self)
-        filename = file[0]
-
-
-        # Step 2: Create a QThread object
-        self.thread = QThread()
-        # Step 3: Create a worker object
-        self.worker = SaveFileWorker()
-        self.worker.thread_function_init(self.current_filename,self.total_page_number,filename)
-        # Step 4: Move worker to the thread
-        self.worker.moveToThread(self.thread)
-        # Step 5: Connect signals and slots
-        self.thread.started.connect(self.worker.thread_function)
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.progress.connect(save_as_docx)
-        # Step 6: Start the thread
-        self.thread.start()
-
+        
+        if WORK_ON_THREAD:
+            # Step 2: Create a QThread object
+            self.thread = QThread()
+            # Step 3: Create a worker object
+            self.worker = SaveFileWorker()
+            self.worker.thread_function_init(self.current_filename,self.total_page_number,filename)
+            # Step 4: Move worker to the thread
+            self.worker.moveToThread(self.thread)
+            # Step 5: Connect signals and slots
+            self.thread.started.connect(self.worker.thread_function)
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+            self.worker.progress.connect(save_as_docx)
+            # Step 6: Start the thread
+            self.thread.start()
+        else:
+            pages = ocr_load_pages(self.current_filename, self.total_page_number)
+            save_as_docx(pages)
 
         # print(type(file))
 

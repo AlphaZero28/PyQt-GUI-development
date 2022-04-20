@@ -1,4 +1,4 @@
-from curses import ACS_DARROW
+# from curses import ACS_DARROW
 import sys
 from PyQt5.QtWidgets import QApplication
 from GUIMain import GUIMainWindow

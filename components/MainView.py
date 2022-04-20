@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap, QImage,QFont
 from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
 from components.ToolBar import cToolBar
 from components.ImageProcessing import imgProcess
-from components.config import DEBUG
+from components.config import DEBUG, WORK_ON_THREAD
 import PIL.Image as Image
 import io
 import numpy as np
@@ -14,8 +14,10 @@ import cv2
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
 from components.ImageProcessing import imgProcess
-from components.Worker import Worker
+from components.Worker import Worker, ocr_on_page
+
 # import matplotlib.pyplot as plt
+
 
 class cMainView(QWidget):
     def __init__(self, mainwindow, vbox_layout):
@@ -90,23 +92,25 @@ class cMainView(QWidget):
         page_height = self.scroll_area.height()
         # [no_of_lines,pixMap,bounding_box,height_ratio,width_ratio] = self.process(img,page_width,page_height,self.zoom)
         
-
-        # Step 2: Create a QThread object
-        self.thread = QThread()
-        # Step 3: Create a worker object
-        self.worker = Worker()
-        self.worker.thread_function_init(img,page_width,page_height,self.zoom)
-        # Step 4: Move worker to the thread
-        self.worker.moveToThread(self.thread)
-        # Step 5: Connect signals and slots
-        self.thread.started.connect(self.worker.thread_function)
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.progress.connect(self.show_single_page)
-        # Step 6: Start the thread
-        self.thread.start()
-
+        if WORK_ON_THREAD:
+            # Step 2: Create a QThread object
+            self.thread = QThread()
+            # Step 3: Create a worker object
+            self.worker = Worker()
+            self.worker.thread_function_init(img,page_width,page_height,self.zoom)
+            # Step 4: Move worker to the thread
+            self.worker.moveToThread(self.thread)
+            # Step 5: Connect signals and slots
+            self.thread.started.connect(self.worker.thread_function)
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+            self.worker.progress.connect(self.show_single_page)
+            # Step 6: Start the thread
+            self.thread.start()
+        else:
+            lst = ocr_on_page(img,page_width,page_height,self.zoom)
+            self.show_single_page(lst)
 
         # self.show_single_page(no_of_lines,pixMap,bounding_box,height_ratio,width_ratio)
         # self.show_single_page(self.imgs[page_num])

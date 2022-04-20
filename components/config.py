@@ -1,2 +1,3 @@
 # DEBUG = True
 DEBUG = False
+WORK_ON_THREAD = 0
