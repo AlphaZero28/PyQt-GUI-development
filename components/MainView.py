@@ -11,24 +11,25 @@ import io
 import numpy as np
 import cv2
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
-from components.ImageProcessing import imgProcess
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
 from components.Worker import Worker, ocr_on_page
 
 # import matplotlib.pyplot as plt
 
 
 class cMainView(QWidget):
-    def __init__(self, mainwindow, vbox_layout):
+    def __init__(self, mainwindow, vbox_layout, file_intent):
         super(cMainView, self).__init__()
         self.vbox_layout = vbox_layout
+        self.file_intent = file_intent
+        self.line_labels = []
+        self.line_focus = -1
+
         self.mainwindow = mainwindow
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         
-        
-
         self.imgs = []
         self.zoom = 1.75
         self.page_num = 0
@@ -44,9 +45,38 @@ class cMainView(QWidget):
         
         if DEBUG:
             self.debug_show_page()
+    
+    # def fooUp(self):
+    #     print('foo up!')
+    
+    def up_arrow_press(self):
+        if self.line_focus > 0:
+            self.line_focus -= 1
+
+            if self.line_focus >= 0:
+                self.line_labels[self.line_focus].setFocus()
+
+        
+    
+
+    def down_arrow_press(self):
+        if self.line_focus < len(self.line_labels)-1:
+            self.line_focus += 1
+        
+            if self.line_focus < len(self.line_labels):
+                self.line_labels[self.line_focus].setFocus()
+
+        
+
 
     def set_status_bar(self,status_bar):
         self.status_bar = status_bar
+    
+    def start_work(self):
+        if not self.file_intent=='':
+            print('opening file from intent:',self.file_intent)
+            self.set_path(self.file_intent)
+
 
     def set_zoom(self, value):
         if self.total_page_number==0:
@@ -62,9 +92,10 @@ class cMainView(QWidget):
         self.page_num = 0
         self.goto_page(self.page_num)
 
-    def set_path(self,path,total_page_number):
+    def set_path(self,path):
         self.path = path
-        self.total_page_number = total_page_number
+        self.total_page_number = imgProcess.get_page_count(self.path)
+        # self.total_page_number = total_page_number
         # print(self.total_page_number)
         self.page_num = 0
         self.goto_page(self.page_num)
@@ -242,6 +273,7 @@ class cMainView(QWidget):
 
         
         [tempQW] = self.create_page(no_of_lines,self.pixMap,bounding_box,self.height_ratio,self.width_ratio)
+        
 
         form_layout.addRow(tempQW)
         groupBox.setLayout(form_layout)
@@ -316,10 +348,13 @@ class cMainView(QWidget):
         else:
             bounding_vertical_rect = []
             
-            
+            self.line_labels = []
+            self.line_focus = -1
+
             for i, (x1, x2, r1, r2, txt) in enumerate(bounding_box):                
             
                 line = QLabel(container)
+                self.line_labels.append(line)
                 
                 line.setText(txt)
                 line.setTextInteractionFlags(Qt.TextSelectableByMouse)
