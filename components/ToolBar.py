@@ -30,7 +30,6 @@ class cToolBar(QWidget):
     def __init__(self, mainwindow):
         super(cToolBar, self).__init__()
         self.mainwindow = mainwindow
-        self.zoom = 1
         self.total_page_number = 0
 
         # file toolbar
@@ -98,12 +97,10 @@ class cToolBar(QWidget):
         # self.get_pages('F:/My_Folder/__Projects__/InnovationGarage/Accessible-PDF-Reader/App/pyqt-pdfreader/Jhora Palok By Jibanananda Das (BDeBooks.Com)-pages-deleted.pdf')
 
     def zoom_in(self):
-        self.zoom = self.zoom + 0.25
-        self.cmain_view.set_zoom(self.zoom)
+        self.cmain_view.zoom_in()
 
     def zoom_out(self):
-        self.zoom = self.zoom - 0.25
-        self.cmain_view.set_zoom(self.zoom)
+        self.cmain_view.zoom_out()
 
     def openFiles(self):
         # if DEBUG:
