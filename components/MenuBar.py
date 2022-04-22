@@ -1,12 +1,14 @@
+import sys
+import time
 from ast import Lambda
 from cProfile import run
-from PyQt5.QtWidgets import QAction, QFileDialog, QWidget,QApplication,QLabel,QMessageBox
-import sys 
-from components.ImageProcessing import imgProcess
-from components.config import DEBUG
-from PyQt5.QtWidgets import QPushButton
-import time 
+
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
+                             QMessageBox, QPushButton, QWidget)
+
+from components.config import DEBUG
+from components.ImageProcessing import imgProcess
 
 class cMenuBar(QWidget):
     def __init__(self, mainwindow):

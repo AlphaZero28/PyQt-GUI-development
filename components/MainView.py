@@ -1,17 +1,16 @@
-from PyQt5.QtCore import QRect, Qt
-from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel, QPushButton, QTextEdit
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtGui import QPixmap, QImage,QFont
-from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
-from components.ToolBar import cToolBar
-from components.ImageProcessing import imgProcess
-from components.config import DEBUG, WORK_ON_THREAD
-import numpy as np
 import cv2
+import numpy as np
+from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QObject, QRect, Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QFont, QImage, QPixmap
+from PyQt5.QtWidgets import (QFormLayout, QGraphicsDropShadowEffect, QGroupBox,
+                             QHBoxLayout, QLabel, QPushButton, QScrollArea,
+                             QTextEdit, QVBoxLayout, QWidget)
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
-
+from components.config import DEBUG, WORK_ON_THREAD
 from components.ImageProcessing import imgProcess
+from components.ToolBar import cToolBar
 from components.Worker import Worker, ocr_on_page
 
 # import matplotlib.pyplot as plt

@@ -30,7 +30,6 @@ class FileLoader(QtCore.QObject):
         imgs = imgProcess.get_pages(self.path)
         # self.progress.emit(imgs)
         self.finished.emit(imgs)
-                
 
 class cToolBar(QWidget):
     def __init__(self, mainwindow):
@@ -69,24 +68,32 @@ class cToolBar(QWidget):
         viewToolBar.addAction(minusActionForToolBar)
         viewToolBar.addAction(plusActionForToolBar)
 
+        # QLabel for showing total page number 
+        self.total_page_no_label = QLabel()
+        self.total_page_no_label.setText('  ')
+        self.total_page_no_label.setStyleSheet("background: white; border: 0px solid gray; \
+        min-width: 30px; min-height:8px; margin-left:5px; margin-right:5px")
 
-
-        # navigation toolbar
-        # add label for navigation
-        # label = QLabel()
-        # label.setText('GoTo')
+        # Push Button for go to specific page 
         navButton = QPushButton('GoTo')
+        navButton.setStyleSheet("min-width: 50px; min-height: 30px; margin-left: 5px;")
         navButton.clicked.connect(self.navigationFunction)
-
 
         # add spinbox for navigation
         self.navigationBox = QSpinBox()
+        self.navigationBox.setMinimum(1)
+        self.navigationBox.setStyleSheet("background: white; border: 0px solid gray; \
+            min-width: 50px; min-height: 30px; margin-left: 5px;  margin-right: 5px;  ")
+        
         # navigationBox.setFocusPolicy(Qt.NoFocus)
         # self.navigationBox.valueChanged.connect(self.navigationFunction)
 
         navigationBar = QToolBar("Navigation", self)
-        navigationBar.addWidget(navButton)
-        navigationBar.addWidget(self.navigationBox)        
+
+        # add widgets to navigation toolbar
+        navigationBar.addWidget(self.navigationBox) 
+        navigationBar.addWidget(self.total_page_no_label)
+        navigationBar.addWidget(navButton)  
 
         # add toolbar to mainwindow
         self.mainwindow.addToolBar(fileToolBar)
@@ -129,6 +136,11 @@ class cToolBar(QWidget):
         self.mainwindow.cstatus_bar.show_msg('Loading Page')
         self.total_page_number = imgProcess.get_page_count(fname[0])
         self.cmain_view.set_path(fname[0],self.total_page_number)
+
+        # Add total page to to navigation label 
+        self.total_page_no_label.setText(str(self.total_page_number))
+
+
         # # Step 2: Create a QThread object
         # self.thread = QtCore.QThread()
         # # Step 3: Create a worker object
