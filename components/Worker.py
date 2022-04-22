@@ -207,9 +207,8 @@ class SaveFileWorker(QObject):
 
     def thread_function(self):
         """Long-running task."""
-        print('saving started')
+        # print('saving started')
         page_text = ocr_load_pages(self.current_path, self.total_page_number)
-        print('saving ended')
         self.finished.emit()
         self.progress.emit(page_text)   
         # return [no_of_lines,pixMap,bounding_box,height_ratio,width_ratio]
