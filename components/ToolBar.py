@@ -1,16 +1,22 @@
+import time
+import fitz
+from docx import Document
+from docx.shared import Pt
 from PIL import Image
-from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar,QSpinBox, QLabel, QPushButton
-from PyQt5 import QtCore,Qt
+from PyQt5 import Qt, QtCore
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon, QImage
-import fitz
+from PyQt5.QtWidgets import (QAction, QFileDialog, QLabel, QMessageBox,
+                             QProgressBar, QPushButton, QSpinBox, QToolBar,
+                             QWidget,QVBoxLayout)
+
+from components.config import DEBUG, WORK_ON_THREAD
 # from matplotlib import style
 from components.ImageProcessing import imgProcess
-from components.config import DEBUG, WORK_ON_THREAD
-from docx import Document
-from docx.shared import Pt 
-from components.Worker import SaveFileWorker, ocr_load_pages
+from components.Worker import SaveFileWorker, Worker, ocr_load_pages, ocr_on_page
 
+
+no_of_pages = 0
 
 class FileLoader(QtCore.QObject):
     finished = QtCore.pyqtSignal(list)
@@ -155,11 +161,15 @@ class cToolBar(QWidget):
         if self.total_page_number==0:
             return
 
+        global no_of_pages
         no_of_pages = self.total_page_number
 
         # file = str(QFileDialog.get)
         file = QFileDialog.getSaveFileName(self)
         filename = file[0]
+
+        self.popup = PopUpProgress()
+        self.popup.start_progress()
         
         def save_as_docx(pages):
             # [pages] = lst
@@ -184,8 +194,9 @@ class cToolBar(QWidget):
             document.save(filename)
             self.mainwindow.cstatus_bar.show_msg('File Saved!')
 
-        
+
         if WORK_ON_THREAD:
+            # print('activated')
             # Step 2: Create a QThread object
             self.thread = QThread()
             # Step 3: Create a worker object
@@ -193,28 +204,72 @@ class cToolBar(QWidget):
             self.worker.thread_function_init(self.current_filename,self.total_page_number,filename)
             # Step 4: Move worker to the thread
             self.worker.moveToThread(self.thread)
+            
             # Step 5: Connect signals and slots
             self.thread.started.connect(self.worker.thread_function)
             self.worker.finished.connect(self.thread.quit)
             self.worker.finished.connect(self.worker.deleteLater)
             self.thread.finished.connect(self.thread.deleteLater)
+
             self.worker.progress.connect(save_as_docx)
             # Step 6: Start the thread
             self.thread.start()
         else:
+            self.progressBar = QProgressBar()
+            self.progressBar.setRange(0, self.total_page_number)
+            self.pi = 0
+            
+            # msg = QMessageBox()
+            # l = msg.layout()
+            # l.addWidget(self.progressBar)
+            # handle_progress_bar(self.total_page_number)
+            # x = msg.exec_()
+            
+            # page_text = []
+            # for pi in range(self.total_page_number):
+            #     print('inside loop')
+            #     self.pi += pi
+
+            #     print(pi)
+            #     # time.sleep(0.01)
+            #     # self.progressBar.setValue(pi + 1)
+            #     page_text.append([])
+            #     img = imgProcess.get_single_page(self.current_filename,pi)
+            #     [no_of_lines,bounding_box] = ocr_on_page(img)
+            #     for i, (x1, x2, r1, r2, txt) in enumerate(bounding_box): 
+            #         page_text[pi].append(txt)
+
+            # print(self.total_page_number)
             pages = ocr_load_pages(self.current_filename, self.total_page_number)
             save_as_docx(pages)
 
-        # print(type(file))
 
-        
+class PopUpProgress(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.progressBar = QProgressBar(self)
+        print(no_of_pages)
+        self.progressBar.setRange(1,no_of_pages)
+        self.progressBar.setGeometry(30,40,500,75)
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.progressBar)
+        self.setLayout(self.layout)
+        self.setWindowTitle('Progress Bar')
+        self.setGeometry(300,400,650,100)
+        # self.show() 
 
+        self.thread = QThread()
+        self.worker = SaveFileWorker()
+        self.worker.intReady.connect(self.progress_value)
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.saveProgressBar)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.hide)
 
-        # with open('sample.txt', 'a') as f:
-        #     for line in txt:
-        #         f.write('\n')
-        #         f.write(line)
+    def start_progress(self):
+        self.show()
+        self.thread.start()
 
-
-
+    def progress_value(self,value):
+        self.progressBar.setValue(value)
 

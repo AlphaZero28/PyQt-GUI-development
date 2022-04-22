@@ -1,7 +1,11 @@
-from PyQt5.QtWidgets import QAction, QFileDialog, QWidget,QApplication,QLabel
+from ast import Lambda
+from cProfile import run
+from PyQt5.QtWidgets import QAction, QFileDialog, QWidget,QApplication,QLabel,QMessageBox, QProgressBar
 import sys 
 from components.ImageProcessing import imgProcess
 from components.config import DEBUG
+from PyQt5.QtWidgets import QPushButton
+import time 
 
 class cMenuBar(QWidget):
     def __init__(self, mainwindow):
@@ -73,6 +77,7 @@ class cMenuBar(QWidget):
         # HELP MENU
         helpMenu = menuBar.addMenu('Help')
         about_action = QAction('About', self)
+        about_action.triggered.connect(self.aboutPage)
 
         userGuide_action = QAction('User Guide', self)
         
@@ -89,12 +94,31 @@ class cMenuBar(QWidget):
     def saveFiles(self):
         self.mainwindow.ctool_bar.saveFiles()
 
-        # fname = QFileDialog.getOpenFileName(
-        #     self, 'Open File', "", "PDF files (*.pdf);;")
-        
-        # if fname[0]=='':
-        #     return
+    def runProg(self):
+        n = 500
+        for i in range(n):
+            time.sleep(0.01)
+            self.prog_bar.setValue(i + 1)
 
-        # print('fname',fname)
-        # imgs = imgProcess.get_pages(fname[0])
-        # self.cmain_view.set_imgs(imgs)
+    def aboutPage(self):
+        self.prog_bar = QProgressBar()
+        msg = QMessageBox()
+        l = msg.layout()
+
+        l.addWidget(self.prog_bar)
+        msg.setWindowTitle('Pathok')
+        msg.setText('hello there welcome to the pathok')
+        
+
+        n = 500
+        
+        
+        self.prog_bar.setRange(0, n)
+
+        self.button = QPushButton('go')
+        self.button.clicked.connect(self.runProg)
+        l.addWidget(self.button)
+
+
+        x = msg.exec_()
+

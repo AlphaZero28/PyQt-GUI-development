@@ -6,8 +6,6 @@ from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
 from components.ToolBar import cToolBar
 from components.ImageProcessing import imgProcess
 from components.config import DEBUG, WORK_ON_THREAD
-import PIL.Image as Image
-import io
 import numpy as np
 import cv2
 
