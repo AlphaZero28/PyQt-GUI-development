@@ -102,8 +102,9 @@ class cMenuBar(QWidget):
     def aboutPage(self):
         msg = QMessageBox()
         msg.setWindowTitle('পাঠক')
-        msg.setText('দৃষ্টি প্রতিবন্ধীদের জন্য নির্মিত এই সফটওয়্যারটি দিয়ে \
-         যেকোন ধরনের pdf রিড করে শোনা যাবে এবং pdf ফাইলটি docx ফাইল হিসেবে সেইভ করে রাখা যাবে।')
+
+        msg.setText('দৃষ্টি প্রতিবন্ধীদের জন্য নির্মিত এই সফটওয়্যারটি দিয়ে যেকোন ধরনের pdf রিড করে শোনা যাবে এবং pdf ফাইলটি docx ফাইল হিসেবে সেইভ করে রাখা যাবে।')
+
         msg.setWindowIcon(QIcon('./assets/pdf-reader.png'))
         msg.setStyleSheet("font:12pt Arial")
 

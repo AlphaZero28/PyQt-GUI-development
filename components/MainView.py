@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (QFormLayout, QGraphicsDropShadowEffect, QGroupBox,
                              QHBoxLayout, QLabel, QPushButton, QScrollArea,
                              QTextEdit, QVBoxLayout, QWidget)
 
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
 from components.config import DEBUG, WORK_ON_THREAD
 from components.ImageProcessing import imgProcess
 from components.ToolBar import cToolBar
@@ -17,15 +18,18 @@ from components.Worker import Worker, ocr_on_page
 
 
 class cMainView(QWidget):
-    def __init__(self, mainwindow, vbox_layout):
+    def __init__(self, mainwindow, vbox_layout, file_intent):
         super(cMainView, self).__init__()
         self.vbox_layout = vbox_layout
+        self.file_intent = file_intent
+        self.line_labels = []
+        self.line_focus = -1
+        self.zoom_flag = 0 # 0 if not zooming, 1 if zooming
+
         self.mainwindow = mainwindow
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         
-        
-
         self.imgs = []
         self.zoom = 1.75
         self.page_num = 0
@@ -41,16 +45,55 @@ class cMainView(QWidget):
         
         if DEBUG:
             self.debug_show_page()
+    
+    # def fooUp(self):
+    #     print('foo up!')
+    
+    def up_arrow_press(self):
+        if self.line_focus > 0:
+            self.line_focus -= 1
+
+            if self.line_focus >= 0:
+                self.line_labels[self.line_focus].setFocus()
+
+        
+    
+
+    def down_arrow_press(self):
+        if self.line_focus < len(self.line_labels)-1:
+            self.line_focus += 1
+        
+            if self.line_focus < len(self.line_labels):
+                self.line_labels[self.line_focus].setFocus()
+
+        
+
 
     def set_status_bar(self,status_bar):
         self.status_bar = status_bar
+    
+    def start_work(self):
+        if not self.file_intent=='':
+            print('opening file from intent:',self.file_intent)
+            self.set_path(self.file_intent)
+
+
+    def zoom_in(self):
+        if self.zoom_flag == 0:
+            self.set_zoom(self.zoom+0.25)
+        
+    def zoom_out(self):
+        if self.zoom_flag == 0:
+            if self.zoom>0.25:
+                self.set_zoom(self.zoom-0.25)
 
     def set_zoom(self, value):
         if self.total_page_number==0:
             return
         self.zoom = value
         # self.show_page(self.imgs)
-        self.goto_page(self.page_num)
+        self.zoom_flag = 1 # zooming
+        self.goto_page(self.page_num, zooming=True)
         # print(self.zoom)
 
     def set_imgs(self, imgs):
@@ -59,9 +102,10 @@ class cMainView(QWidget):
         self.page_num = 0
         self.goto_page(self.page_num)
 
-    def set_path(self,path,total_page_number):
+    def set_path(self,path):
         self.path = path
-        self.total_page_number = total_page_number
+        self.total_page_number = imgProcess.get_page_count(self.path)
+        # self.total_page_number = total_page_number
         # print(self.total_page_number)
         self.page_num = 0
         self.goto_page(self.page_num)
@@ -81,7 +125,7 @@ class cMainView(QWidget):
             self.page_num = self.page_num-1
             self.goto_page(self.page_num)
 
-    def goto_page(self, page_num):
+    def goto_page(self, page_num, zooming=False):
         # self.mainwindow.cstatus_bar.show_msg('working')
         self.status_bar.show_msg('Going to page number '+str(self.page_num+1))
         img = imgProcess.get_single_page(self.path,page_num)
@@ -107,26 +151,28 @@ class cMainView(QWidget):
 
         # [no_of_lines,pixMap,bounding_box,height_ratio,width_ratio] = self.process(img,page_width,page_height,self.zoom)
         
-        if WORK_ON_THREAD:
-            # Step 2: Create a QThread object
-            self.thread = QThread()
-            # Step 3: Create a worker object
-            self.worker = Worker()
-            self.worker.thread_function_init(img)
-            # Step 4: Move worker to the thread
-            self.worker.moveToThread(self.thread)
-            # Step 5: Connect signals and slots
-            self.thread.started.connect(self.worker.thread_function)
-            self.worker.finished.connect(self.thread.quit)
-            self.worker.finished.connect(self.worker.deleteLater)
-            self.thread.finished.connect(self.thread.deleteLater)
-            self.worker.progress.connect(self.show_single_page)
-            # Step 6: Start the thread
-            self.thread.start()
+        if not zooming:
+            if WORK_ON_THREAD:
+                # Step 2: Create a QThread object
+                self.thread = QThread()
+                # Step 3: Create a worker object
+                self.worker = Worker()
+                self.worker.thread_function_init(img)
+                # Step 4: Move worker to the thread
+                self.worker.moveToThread(self.thread)
+                # Step 5: Connect signals and slots
+                self.thread.started.connect(self.worker.thread_function)
+                self.worker.finished.connect(self.thread.quit)
+                self.worker.finished.connect(self.worker.deleteLater)
+                self.thread.finished.connect(self.thread.deleteLater)
+                self.worker.progress.connect(self.show_single_page)
+                # Step 6: Start the thread
+                self.thread.start()
+            else:
+                lst = ocr_on_page(img)
+                self.show_single_page(lst)
         else:
-            lst = ocr_on_page(img)
-            self.show_single_page(lst)
-
+            self.show_single_page([self.no_of_lines, self.bounding_box])
         # self.show_single_page(no_of_lines,pixMap,bounding_box,height_ratio,width_ratio)
         # self.show_single_page(self.imgs[page_num])
 
@@ -224,6 +270,9 @@ class cMainView(QWidget):
     def show_single_page(self, lst):
         [no_of_lines,bounding_box] = lst
 
+        self.no_of_lines = no_of_lines # saving in case zooming
+        self.bounding_box = bounding_box # saving in case zooming
+
         self.run_count = self.run_count+1
         
         scroll_area = QScrollArea()
@@ -239,6 +288,7 @@ class cMainView(QWidget):
 
         
         [tempQW] = self.create_page(no_of_lines,self.pixMap,bounding_box,self.height_ratio,self.width_ratio)
+        
 
         form_layout.addRow(tempQW)
         groupBox.setLayout(form_layout)
@@ -252,7 +302,10 @@ class cMainView(QWidget):
         self.scroll_area.setAccessibleName('Page Number '+str(self.page_num+1))
         self.scroll_area.setFocus()
 
+        self.zoom_flag = 0 # zooming is done...
+
         self.debug_accessibility()
+
         
 
     def show_page(self, imgs):
@@ -313,20 +366,26 @@ class cMainView(QWidget):
         else:
             bounding_vertical_rect = []
             
-            
+            self.line_labels = []
+            self.line_focus = -1
+            font_size = int(self.zoom/1.75*12)
+
             for i, (x1, x2, r1, r2, txt) in enumerate(bounding_box):                
             
                 line = QLabel(container)
+                self.line_labels.append(line)
                 
                 line.setText(txt)
                 line.setTextInteractionFlags(Qt.TextSelectableByMouse)
                 line.setStyleSheet("background:white")
                 
-                line.setFont(QFont('Arial',12))
+                
+                line.setFont(QFont('Arial',font_size))
                 line.adjustSize()
+                # print(line.height(), line.width())
                 # print(i)
                 line.move(x1*width_ratio, r1*height_ratio)
-                line.adjustSize()
+                
                 line.setFixedHeight((r2-r1+12)*height_ratio)
                 line.setFixedWidth((x2-x1+150)*width_ratio)
                 line.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
