@@ -383,7 +383,7 @@ class cMainView(QWidget):
                 
                 line.setFont(QFont('Arial',font_size))
                 line.adjustSize()
-                print(line.height(), line.width())
+                # print(line.height(), line.width())
                 # print(i)
                 line.move(x1*width_ratio, r1*height_ratio)
                 

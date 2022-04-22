@@ -1,16 +1,20 @@
 from PIL import Image
-from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar,QSpinBox, QLabel, QPushButton
+# from PyQt5.QtWidgets import QAction, QFileDialog, QWidget, QToolBar,QSpinBox, QLabel, QPushButton
 from PyQt5 import QtCore,Qt
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon, QImage
 import fitz
+from PyQt5.QtWidgets import (QAction, QFileDialog, QLabel, QMessageBox,
+                             QProgressBar, QPushButton, QSpinBox, QToolBar,
+                             QWidget,QVBoxLayout)
 # from matplotlib import style
 from components.ImageProcessing import imgProcess
 from components.config import DEBUG, WORK_ON_THREAD
 from docx import Document
 from docx.shared import Pt 
-from components.Worker import SaveFileWorker, ocr_load_pages
+from components.Worker import SaveFileWorker
 
+# no_of_pages = 0
 
 class FileLoader(QtCore.QObject):
     finished = QtCore.pyqtSignal(list)
@@ -30,6 +34,7 @@ class cToolBar(QWidget):
     def __init__(self, mainwindow):
         super(cToolBar, self).__init__()
         self.mainwindow = mainwindow
+        self.zoom = 1
         self.total_page_number = 0
 
         # file toolbar
@@ -62,24 +67,32 @@ class cToolBar(QWidget):
         viewToolBar.addAction(minusActionForToolBar)
         viewToolBar.addAction(plusActionForToolBar)
 
+        # QLabel for showing total page number 
+        self.total_page_no_label = QLabel()
+        self.total_page_no_label.setText('  ')
+        self.total_page_no_label.setStyleSheet("background: white; border: 0px solid gray; \
+        min-width: 30px; min-height:8px; margin-left:5px; margin-right:5px")
 
-
-        # navigation toolbar
-        # add label for navigation
-        # label = QLabel()
-        # label.setText('GoTo')
+        # Push Button for go to specific page 
         navButton = QPushButton('GoTo')
+        navButton.setStyleSheet("min-width: 50px; min-height: 30px; margin-left: 5px;")
         navButton.clicked.connect(self.navigationFunction)
-
 
         # add spinbox for navigation
         self.navigationBox = QSpinBox()
+        self.navigationBox.setMinimum(1)
+        self.navigationBox.setStyleSheet("background: white; border: 0px solid gray; \
+            min-width: 50px; min-height: 30px; margin-left: 5px;  margin-right: 5px;  ")
+        
         # navigationBox.setFocusPolicy(Qt.NoFocus)
         # self.navigationBox.valueChanged.connect(self.navigationFunction)
 
         navigationBar = QToolBar("Navigation", self)
-        navigationBar.addWidget(navButton)
-        navigationBar.addWidget(self.navigationBox)        
+
+        # add widgets to navigation toolbar
+        navigationBar.addWidget(self.navigationBox) 
+        navigationBar.addWidget(self.total_page_no_label)
+        navigationBar.addWidget(navButton)  
 
         # add toolbar to mainwindow
         self.mainwindow.addToolBar(fileToolBar)
@@ -118,45 +131,24 @@ class cToolBar(QWidget):
             return
         self.current_filename = fname[0]
         self.mainwindow.cstatus_bar.show_msg('Loading Page')
-        # self.total_page_number = imgProcess.get_page_count(fname[0])
+        self.total_page_number = imgProcess.get_page_count(fname[0])
         self.cmain_view.set_path(fname[0])
-        # # Step 2: Create a QThread object
-        # self.thread = QtCore.QThread()
-        # # Step 3: Create a worker object
-        # self.worker = FileLoader()
-        # self.worker.setPath(fname[0])
-        # # Step 4: Move worker to the thread
-        # self.worker.moveToThread(self.thread)
-        # # Step 5: Connect signals and slots
-        # self.thread.started.connect(self.worker.run)
-        # self.worker.finished.connect(self.thread.quit)
-        # self.worker.finished.connect(lambda imgs:self.cmain_view.set_imgs(imgs))
-        # self.thread.finished.connect(self.thread.deleteLater)
-        # # self.worker.progress.connect(add_img_to_view)
-        # # Step 6: Start the thread
-        # self.thread.start()
-
-        # # Final resets
-        # # self.longRunningBtn.setEnabled(False)
-        # self.thread.finished.connect(
-        #     lambda: print('finished')
-        # )
-
-        # # self.get_pages(fname[0])
-        # self.imgs = imgProcess.get_pages(fname[0])
-        # self.cmain_view.set_imgs(self.imgs)
-        # # self.mainwindow.change_label(fname[0])
+       
 
 
     def saveFiles(self):
         if self.total_page_number==0:
             return
 
-        no_of_pages = self.total_page_number
+        # global no_of_pages
+        # no_of_pages = self.total_page_number
 
         # file = str(QFileDialog.get)
         file = QFileDialog.getSaveFileName(self)
         filename = file[0]
+
+        self.popup = PopUpProgress(self.total_page_number)
+        self.popup.start_progress()
         
         def save_as_docx(pages):
             # [pages] = lst
@@ -179,10 +171,12 @@ class cToolBar(QWidget):
                 
                 document.add_page_break()
             document.save(filename)
+            self.popup.end_progress()
             self.mainwindow.cstatus_bar.show_msg('File Saved!')
 
-        
+
         if WORK_ON_THREAD:
+            # print('activated')
             # Step 2: Create a QThread object
             self.thread = QThread()
             # Step 3: Create a worker object
@@ -190,28 +184,56 @@ class cToolBar(QWidget):
             self.worker.thread_function_init(self.current_filename,self.total_page_number,filename)
             # Step 4: Move worker to the thread
             self.worker.moveToThread(self.thread)
+            
             # Step 5: Connect signals and slots
             self.thread.started.connect(self.worker.thread_function)
             self.worker.finished.connect(self.thread.quit)
             self.worker.finished.connect(self.worker.deleteLater)
+            
             self.thread.finished.connect(self.thread.deleteLater)
-            self.worker.progress.connect(save_as_docx)
+            self.worker.progress.connect(self.popup.progress_value)
+            # self.worker.progress.connect(save_as_docx)
+            self.worker.settext.connect(save_as_docx)
             # Step 6: Start the thread
             self.thread.start()
         else:
-            pages = ocr_load_pages(self.current_filename, self.total_page_number)
-            save_as_docx(pages)
+            self.worker = SaveFileWorker()
+            self.worker.thread_function_init(self.current_filename,self.total_page_number,filename)
+            self.worker.progress.connect(self.popup.progress_value)
+            self.worker.settext.connect(save_as_docx)
+            self.worker.thread_function()
 
-        # print(type(file))
 
-        
+class PopUpProgress(QWidget):
+    def __init__(self, total_page_number):
+        super().__init__()
+        self.setWindowIcon(QIcon('./assets/pdf-reader.png'))
+        self.progressBar = QProgressBar(self)
+        self.progressBar.setRange(0,total_page_number)
+        self.progressBar.setGeometry(30,40,500,75)
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.progressBar)
+        self.setLayout(self.layout)
+        self.setWindowTitle('Progress Bar')
+        self.setGeometry(300,400,650,100)
+        # self.show() 
 
+        # self.thread = QThread()
+        # self.worker = SaveFileWorker()
+        # self.worker.intReady.connect(self.progress_value)
+        # self.worker.moveToThread(self.thread)
+        # self.thread.started.connect(self.worker.saveProgressBar)
+        # self.worker.finished.connect(self.thread.quit)
+        # self.worker.finished.connect(self.hide)
 
-        # with open('sample.txt', 'a') as f:
-        #     for line in txt:
-        #         f.write('\n')
-        #         f.write(line)
+    def start_progress(self):
+        self.show()
+        # self.thread.start()
+    def end_progress(self):
+        self.hide()
 
+    def progress_value(self,value):
+        self.progressBar.setValue(value)
 
 
 

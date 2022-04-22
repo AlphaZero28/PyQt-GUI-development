@@ -1,17 +1,23 @@
 '''Load thread processes (load file and process)'''
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
-from PyQt5.QtCore import QRect, Qt
-from PyQt5.QtWidgets import QFormLayout, QGroupBox, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout, QGraphicsDropShadowEffect, QLabel, QPushButton, QTextEdit
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtGui import QPixmap, QImage,QFont
+from cProfile import run
+import io
+from traceback import print_tb
+import time
+import cv2
+import numpy as np
+import PIL.Image as Image
 from fitz.fitz import PDF_SIGNATURE_ERROR_DIGEST_FAILURE, Pixmap
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QObject, QRect, Qt, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QFont, QImage, QPixmap
+from PyQt5.QtWidgets import (QFormLayout, QGraphicsDropShadowEffect, QGroupBox,
+                             QHBoxLayout, QLabel, QMessageBox, QProgressBar,
+                             QPushButton, QScrollArea, QTextEdit, QVBoxLayout,
+                             QWidget)
+
+from components.config import DEBUG
 # from matplotlib.pyplot import text
 from components.ImageProcessing import imgProcess
-from components.config import DEBUG
-import PIL.Image as Image
-import io
-import numpy as np
-import cv2
 
 
 def ocr_on_page(img):
@@ -77,17 +83,17 @@ def ocr_on_page(img):
         # self.progress.emit([no_of_lines,pixMap,bounding_box,height_ratio,width_ratio])   
         return [no_of_lines,bounding_box]
 
-
-def ocr_load_pages(current_path, total_page_number):
-    page_text = []
-    for pi in range(total_page_number):
-        page_text.append([])
-        img = imgProcess.get_single_page(current_path,pi)
-        [no_of_lines,bounding_box] = ocr_on_page(img)
-        for i, (x1, x2, r1, r2, txt) in enumerate(bounding_box): 
-            page_text[pi].append(txt)
+# running_page = 0
+# def ocr_load_pages(current_path, total_page_number):
+#     page_text = []
+#     for pi in range(total_page_number):
+#         page_text.append([])
+#         img = imgProcess.get_single_page(current_path,pi)
+#         [no_of_lines,bounding_box] = ocr_on_page(img)
+#         for i, (x1, x2, r1, r2, txt) in enumerate(bounding_box): 
+#             page_text[pi].append(txt)
   
-    return page_text
+#     return page_text
 
 class Worker(QObject):
     finished = pyqtSignal()
@@ -107,19 +113,26 @@ class Worker(QObject):
 
 class SaveFileWorker(QObject):
     finished = pyqtSignal()
-    progress = pyqtSignal(list)
+    settext = pyqtSignal(list)
+    progress = pyqtSignal(int)
+    # pyqt signal for saving progress
 
 
     def thread_function_init(self, current_path, total_page_number ,save_filename):
         self.current_path = current_path
         self.save_filename = save_filename
         self.total_page_number = total_page_number
- 
 
     def thread_function(self):
         """Long-running task."""
-
-        page_text = ocr_load_pages(self.current_path, self.total_page_number)
+        # print('saving started')
+        page_text = []
+        for pi in range(self.total_page_number):
+            page_text.append([])
+            img = imgProcess.get_single_page(self.current_path,pi)
+            [no_of_lines,bounding_box] = ocr_on_page(img)
+            for i, (x1, x2, r1, r2, txt) in enumerate(bounding_box): 
+                page_text[pi].append(txt)
+            self.progress.emit(pi+1)
+        self.settext.emit(page_text)
         self.finished.emit()
-        self.progress.emit(page_text)   
-        # return [no_of_lines,pixMap,bounding_box,height_ratio,width_ratio]

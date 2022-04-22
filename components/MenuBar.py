@@ -1,7 +1,14 @@
-from PyQt5.QtWidgets import QAction, QFileDialog, QWidget,QApplication,QLabel
-import sys 
-from components.ImageProcessing import imgProcess
+import sys
+import time
+from ast import Lambda
+from cProfile import run
+
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
+                             QMessageBox, QPushButton, QWidget)
+
 from components.config import DEBUG
+from components.ImageProcessing import imgProcess
 
 class cMenuBar(QWidget):
     def __init__(self, mainwindow):
@@ -73,8 +80,10 @@ class cMenuBar(QWidget):
         # HELP MENU
         helpMenu = menuBar.addMenu('Help')
         about_action = QAction('About', self)
+        about_action.triggered.connect(self.aboutPage)
 
         userGuide_action = QAction('User Guide', self)
+        userGuide_action.triggered.connect(self.userGuide)
         
         helpMenu.addAction(about_action)
         helpMenu.addAction(userGuide_action)
@@ -89,12 +98,34 @@ class cMenuBar(QWidget):
     def saveFiles(self):
         self.mainwindow.ctool_bar.saveFiles()
 
-        # fname = QFileDialog.getOpenFileName(
-        #     self, 'Open File', "", "PDF files (*.pdf);;")
-        
-        # if fname[0]=='':
-        #     return
 
-        # print('fname',fname)
-        # imgs = imgProcess.get_pages(fname[0])
-        # self.cmain_view.set_imgs(imgs)
+    def aboutPage(self):
+        msg = QMessageBox()
+        msg.setWindowTitle('পাঠক')
+        msg.setText('দৃষ্টি প্রতিবন্ধীদের জন্য নির্মিত এই সফটওয়্যারটি দিয়ে যেকোন ধরনের pdf রিড করে শোনা যাবে এবং pdf ফাইলটি docx ফাইল হিসেবে সেইভ করে রাখা যাবে।')
+        msg.setWindowIcon(QIcon('./assets/pdf-reader.png'))
+        msg.setStyleSheet("font:12pt Arial")
+
+
+        x = msg.exec_()
+
+    def userGuide(self):
+        msg = QMessageBox()
+        msg.setGeometry(800,400,50,300)
+        msg.setWindowTitle('User Guide')
+        msg.setWindowIcon(QIcon('./assets/pdf-reader.png'))
+        msg.setStyleSheet("font:12pt Arial")
+        msg.setText('\
+        Open (ctrl+O): To open a pdf file.\n\
+        Save (Ctrl + S): to save a file as DOCX.\n\
+        Goto Button: for go to specific page.\n\
+        Right and Left arrow Button: to go to next and previous page.\n\
+        Status Bar: to get information about the status of Software.')
+
+        # layout  = msg.layout()
+        # label1 = QLabel()
+        # label1.setText('new label')
+        # layout.addWidget(label1)
+
+
+        x = msg.exec_()
