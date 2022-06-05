@@ -13,8 +13,12 @@ from components.config import DEBUG, WORK_ON_THREAD
 from docx import Document
 from docx.shared import Pt 
 from components.Worker import SaveFileWorker
+import logging
 
 # no_of_pages = 0
+
+logger = logging.getLogger(__name__)
+
 
 class FileLoader(QtCore.QObject):
     finished = QtCore.pyqtSignal(list)
@@ -111,9 +115,11 @@ class cToolBar(QWidget):
 
     def zoom_in(self):
         self.cmain_view.zoom_in()
+        logger.info("zoom in")
 
     def zoom_out(self):
         self.cmain_view.zoom_out()
+        logger.info("zoom out")
 
     def openFiles(self):
         # if DEBUG:
@@ -137,6 +143,7 @@ class cToolBar(QWidget):
 
 
     def saveFiles(self):
+        logger.info("file saved option activated")
         if self.total_page_number==0:
             return
 

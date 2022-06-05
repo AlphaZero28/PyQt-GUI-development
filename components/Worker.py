@@ -1,6 +1,7 @@
 '''Load thread processes (load file and process)'''
 from cProfile import run
 import io
+import os
 from traceback import print_tb
 import time
 import cv2
@@ -66,9 +67,7 @@ def ocr_on_page(img):
 
                 image = lines[i][:,initial:final]
 
-                # print(initial, final)
-                # print(words_in_line)
-                
+
                 bounding_vertical_rect.append(words_in_line)
                 # print(bounding_vertical_rect)
                 txt = imgProcess.pytesseract_apply(image,flag=0, line=i)
@@ -109,11 +108,22 @@ class Worker(QObject):
 
     def thread_function_init(self, img):
         self.img = img
- 
+
 
     def thread_function(self):
         # """Long-running task."""
-        logging.info("File opened")
+        tessdata_ben = r"C:\Program Files\Tesseract-OCR\tessdata\ben.traineddata"
+        tesseract_dir = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+        if os.path.exists(tessdata_ben) ==True:
+            logging.info("bangla tessdata found!")
+        else:
+            logging.error("bangla tessdata not found!")
+
+        if os.path.exists(tesseract_dir):
+            logging.info("Tesseract found!")
+        else:
+            logging.info("Tesseract not found! Install tesseract")
 
         lst = ocr_on_page(self.img)
         self.finished.emit()
@@ -127,7 +137,7 @@ class SaveFileWorker(QObject):
     progress = pyqtSignal(int)
     # pyqt signal for saving progress
 
-    logging.info("file saved option activated")
+    
 
 
     def thread_function_init(self, current_path, total_page_number ,save_filename):

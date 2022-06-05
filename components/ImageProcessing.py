@@ -183,10 +183,7 @@ class imgProcess():
         flag = 1 when image containes word text '''
         # global num
 
-        if os.path.exists(tesseract_dir) == True:
-            logger.info('OCR applied')
-        else:
-            logger.error("Tesseract not found!")
+        logger.info("OCR Applied")
 
         if flag == 0:
             set_config = r'--psm 7'
