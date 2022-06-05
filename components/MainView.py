@@ -14,7 +14,7 @@ from components.ImageProcessing import imgProcess
 from components.ToolBar import cToolBar
 from components.Worker import Worker, ocr_on_page
 
-# import matplotlib.pyplot as plt
+
 
 
 class cMainView(QWidget):
@@ -309,6 +309,8 @@ class cMainView(QWidget):
         
 
     def show_page(self, imgs):
+
+
         self.run_count = self.run_count+1
         self.groupBox.layout().removeItem(self.form_layout)
 

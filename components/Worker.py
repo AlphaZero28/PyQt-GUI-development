@@ -18,7 +18,10 @@ from PyQt5.QtWidgets import (QFormLayout, QGraphicsDropShadowEffect, QGroupBox,
 from components.config import DEBUG
 # from matplotlib.pyplot import text
 from components.ImageProcessing import imgProcess
+import logging
 
+logging.basicConfig(level=logging.INFO, filename='pathok.log', filemode='w',
+                    format="%(levelname)s - %(message)s")
 
 def ocr_on_page(img):
         """Long-running task."""
@@ -36,6 +39,7 @@ def ocr_on_page(img):
         no_of_lines = len(bounding_horizontal_rect)
         # print(bounding_horizontal_rect)
 
+        logging.info("image preprocessing done")
         # cropped img
         lines = imgProcess.find_lines(bounding_horizontal_rect, inv_img)
 
@@ -98,6 +102,10 @@ def ocr_on_page(img):
 class Worker(QObject):
     finished = pyqtSignal()
     progress = pyqtSignal(list)
+    
+    # logging starting
+    logging.info("Pathok Starts")
+    logging.info("Threading starts")
 
     def thread_function_init(self, img):
         self.img = img
@@ -105,6 +113,8 @@ class Worker(QObject):
 
     def thread_function(self):
         # """Long-running task."""
+        logging.info("File opened")
+
         lst = ocr_on_page(self.img)
         self.finished.emit()
         self.progress.emit(lst)   
@@ -116,6 +126,8 @@ class SaveFileWorker(QObject):
     settext = pyqtSignal(list)
     progress = pyqtSignal(int)
     # pyqt signal for saving progress
+
+    logging.info("file saved option activated")
 
 
     def thread_function_init(self, current_path, total_page_number ,save_filename):

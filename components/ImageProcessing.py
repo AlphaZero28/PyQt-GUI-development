@@ -4,12 +4,17 @@ import io
 import PIL.Image as Image
 import fitz
 import pytesseract
-
-# import matplotlib.pyplot as plt
+import logging
+import os
 import platform
 
+
+tesseract_dir = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+logger = logging.getLogger(__name__)
+
+
 if platform.system().lower()=='windows':
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    pytesseract.pytesseract.tesseract_cmd = tesseract_dir
 num = 0
 class imgProcess():
 
@@ -178,6 +183,11 @@ class imgProcess():
         flag = 1 when image containes word text '''
         # global num
 
+        if os.path.exists(tesseract_dir) == True:
+            logger.info('OCR applied')
+        else:
+            logger.error("Tesseract not found!")
+
         if flag == 0:
             set_config = r'--psm 7'
         elif flag == 1:
@@ -196,12 +206,7 @@ class imgProcess():
         ret, img = cv2.threshold(
             img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-        # cv2.imwrite(imgname, img)
 
-        # if line == 5:
-        #     plt.imshow(im2, cmap='gray')
-        #     plt.show()
-        #     plt.axis('off')
 
 
 
